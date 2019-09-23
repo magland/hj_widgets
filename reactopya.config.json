@@ -1,0 +1,12 @@
+{
+    "project_name": "hj_widgets",
+    "version": "0.2.0",
+    "description": "widgets specific to L. Frank lab",
+    "author": "Jeremy Magland",
+    "license": "Apache-2.0",
+    "setup_py": {
+        "install_requires": [
+            "spikeforest"
+        ]
+    }
+}

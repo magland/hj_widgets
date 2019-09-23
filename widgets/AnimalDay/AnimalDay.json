@@ -1,0 +1,7 @@
+{
+    "project_name": "hj_widgets",
+    "type": "AnimalDay",
+    "description": "View of ephys data for a single animal day",
+    "defaultProps": {
+    }
+}

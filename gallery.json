@@ -1,0 +1,12 @@
+{
+    "widgets": [
+        {
+            "type": "AnimalDay",
+            "title": "AnimalDay",
+            "key": "AnimalDay",
+            "props": {
+                "path": "/home/magland/data/franklab_test_data/20190512_subset_for_testing"
+            }
+        }
+    ]
+}
