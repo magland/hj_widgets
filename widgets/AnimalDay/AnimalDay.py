@@ -1,4 +1,5 @@
 import os
+import traceback
 from spikeforest import mdaio
 
 
@@ -47,7 +48,11 @@ def load_epoch(path, *, name):
     ntrodes = dict()
     for name2 in ntrode_names:
         name2b = name2[0:-4]
-        ntrodes[name2b] = load_ntrode(path + '/' + name2, name=name2b)
+        try:
+            ntrodes[name2b] = load_ntrode(path + '/' + name2, name=name2b)
+        except:
+            traceback.print_exc()
+            print('WARNING: unable to load ntrode at {}'.format(path + '/' + name2))
     # here's the data representing the epoch
     return dict(
         type='epoch',
