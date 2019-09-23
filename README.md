@@ -11,6 +11,12 @@ Reactopya widgets specific to L. Frank's lab.
 * NodeJS >= 8
 * Yarn
 
+If you plan to run the GUI on the local computer (not the hosting method) then you will also need to install electron:
+
+```
+npm install -g electron
+```
+
 **Install reactopya**
 
 ```
@@ -51,4 +57,6 @@ More information:
 ```
 desktop_examples/view_animalday.py --help
 ```
+
+You can also use this in a jupyter notebook. See the `notebook_examples/` directory.
 

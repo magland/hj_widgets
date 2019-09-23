@@ -13,10 +13,9 @@ def main():
     args = parser.parse_args()
     if args.output:
         raise Exception('Output directory not yet supported.')
-    props = {
-        "path": args.input,
-        "path_test": "/home/magland/data/franklab_test_data/20190512_subset_for_testing"
-    }
+    props = dict(
+        path=args.input
+    )
     W = hj.AnimalDay(**props)
     if args.port:
         W.host(port=args.port)
