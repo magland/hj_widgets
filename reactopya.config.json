@@ -6,7 +6,8 @@
     "license": "Apache-2.0",
     "setup_py": {
         "install_requires": [
-            "spikeforest"
+            "spikeforest",
+            "mountaintools"
         ]
     }
 }
