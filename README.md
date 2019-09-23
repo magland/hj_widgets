@@ -17,6 +17,25 @@ If you plan to run the GUI on the local computer (not the hosting method) then y
 npm install -g electron
 ```
 
+If you plan to use the widget in a notebook, then you should also install `reactopya_jup`:
+
+```
+pip install --upgrade reactopya_jup==0.7.4
+```
+
+For JupyterLab, install the lab extension:
+
+```
+jupyter labextension install reactopya_jup@0.7.4
+```
+
+For Jupyter Notebook, install and enable the notebook extension:
+
+```
+jupyter nbextension install --sys-prefix --py reactopya_jup
+jupyter nbextension enable reactopya_jup --py --sys-prefix
+```
+
 **Install reactopya**
 
 ```
