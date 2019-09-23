@@ -47,6 +47,7 @@ def load_epoch(path, *, name):
     # load each of the ntrodes
     ntrodes = dict()
     for name2 in ntrode_names:
+        print('Loading ntrode {}'.format(name2))
         name2b = name2[0:-4]
         try:
             ntrodes[name2b] = load_ntrode(path + '/' + name2, name=name2b)
