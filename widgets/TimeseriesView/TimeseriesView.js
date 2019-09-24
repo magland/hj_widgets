@@ -77,7 +77,6 @@ class TimeseriesViewInner extends Component {
                 let code = `${ds_factor}-${segment_num}`;
                 sr[code] = { ds: ds_factor, ss: segment_num };
                 this.segmentsRequested = sr;
-                console.log('---- setting segments requested 1', sr);
                 this.pythonInterface.setState({
                     segmentsRequested: sr
                 });
@@ -102,7 +101,6 @@ class TimeseriesViewInner extends Component {
         }
         if (something_changed) {
             this.segmentsRequested = SR;
-            console.log('---- setting segments requested 2', SR);
             this.pythonInterface.setState({
                 segmentsRequested: SR
             });

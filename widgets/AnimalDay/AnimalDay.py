@@ -1,6 +1,8 @@
 import os
 import traceback
+from spikeforest import SFMdaSortingExtractor
 from spikeforest import mdaio
+import sys
 
 
 class AnimalDay:
@@ -9,22 +11,31 @@ class AnimalDay:
 
     def javascript_state_changed(self, prev_state, state):
         self._set_status('running', 'Getting state variables')
-        path = state.get('path', None)
-        if not path:
-            self._set_error('No path')
+        raw_path = state.get('raw_path', None)
+        if not raw_path:
+            self._set_error('No raw path')
             return
+        processed_path = state.get('processed_path', None)
+
+        print('a')
 
         self._set_status('running', 'Loading epochs')
 
         # parse the epoch names from the input directory
-        epoch_names = [name for name in sorted(os.listdir(path)) if name.endswith('.mda')]
+        epoch_names = [name for name in sorted(os.listdir(raw_path)) if name.endswith('.mda')]
         # call load_epoch for each epoch name
         epochs = dict()
         for name in epoch_names:
             name0 = name[0:-4]
-            epochs[name0] = load_epoch(path + '/' + name, name=name0)
+            if processed_path:
+                epoch_processed_path = processed_path + '/' + name0
+            else:
+                epoch_processed_path = None
+            epochs[name0] = load_epoch(raw_path + '/' + name, name=name0, processed_path=epoch_processed_path)
 
         self._set_status('running', 'Setting state')
+
+        print('b')
 
         self.set_state(dict(
             object=dict(
@@ -41,7 +52,8 @@ class AnimalDay:
         self.set_state(dict(status=status, status_message=status_message))
 
 
-def load_epoch(path, *, name):
+def load_epoch(path, *, name, processed_path=None):
+    print('load epoch')
     # read the ntrode names
     ntrode_names = [name for name in sorted(os.listdir(path)) if name.endswith('.mda')]
     # load each of the ntrodes
@@ -49,8 +61,12 @@ def load_epoch(path, *, name):
     for name2 in ntrode_names:
         print('Loading ntrode {}'.format(name2))
         name2b = name2[0:-4]
+        if processed_path:
+            ntrode_processed_path = processed_path + '/' + name2b
+        else:
+            ntrode_processed_path = None
         try:
-            ntrodes[name2b] = load_ntrode(path + '/' + name2, name=name2b)
+            ntrodes[name2b] = load_ntrode(path + '/' + name2, name=name2b, epoch_name=name, processed_path=ntrode_processed_path)
         except:
             traceback.print_exc()
             print('WARNING: unable to load ntrode at {}'.format(path + '/' + name2))
@@ -58,11 +74,12 @@ def load_epoch(path, *, name):
     return dict(
         type='epoch',
         path=path,
+        processed_path=processed_path,
         name=name,
         ntrodes=ntrodes
     )
 
-def load_ntrode(path, *, name):
+def load_ntrode(path, *, name, epoch_name, processed_path=None):
     # use the .geom.csv if it exists (we assume path ends with .mda)
     geom_file = path[0:-4] + '.geom.csv'
     if os.path.exists(geom_file):
@@ -79,10 +96,41 @@ def load_ntrode(path, *, name):
     return dict(
         type='ntrode',
         name=name,
+        epoch_name=epoch_name,
         path=path,
+        processed_path=processed_path,
         recording_file=path,
         geom_file=geom_file,
         num_channels=num_channels,
         num_timepoints=num_timepoints,
-        samplerate=30000  # fix this
+        samplerate=30000,  # fix this
+        processed_info=load_ntrode_processed_info(processed_path, epoch_name=epoch_name, ntrode_name=name)
+    )
+
+def load_ntrode_processed_info(processed_path, *, epoch_name, ntrode_name):
+    if not processed_path:
+        return None
+    if not os.path.exists(processed_path):
+        return None
+    firings_path = processed_path + '/firings.mda'
+    firings_curated_path = processed_path + '/firings_curated.mda'
+    return dict(
+        sorting_results=load_sorting_results_info(firings_path, epoch_name=epoch_name, ntrode_name=ntrode_name),
+        sorting_results_curated=load_sorting_results_info(firings_curated_path, epoch_name=epoch_name, ntrode_name=ntrode_name, curated=True)
+    )
+
+def load_sorting_results_info(firings_path, *, epoch_name, ntrode_name, curated=False):
+    sorting = SFMdaSortingExtractor(firings_file=firings_path)
+    total_num_events = 0
+    for unit_id in sorting.get_unit_ids():
+        spike_times = sorting.get_unit_spike_train(unit_id=unit_id)
+        total_num_events = total_num_events + len(spike_times)
+    return dict(
+        type='sorting_results',
+        epoch_name=epoch_name,
+        ntrode_name=ntrode_name,
+        curated=curated,
+        firings_path=firings_path,
+        unit_ids=sorting.get_unit_ids(),
+        num_events=total_num_events
     )

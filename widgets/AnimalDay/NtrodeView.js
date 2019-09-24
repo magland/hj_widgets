@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import TimeseriesView from '../TimeseriesView/TimeseriesView';
-import { IconButton, Table, TableBody, TableRow, TableCell } from '@material-ui/core';
+import { IconButton, Table, TableBody, TableRow, TableCell, Link } from '@material-ui/core';
 import { FaChevronDown, FaChevronRight } from 'react-icons/fa';
 
 export default class NtrodeView extends Component {
@@ -13,6 +13,20 @@ export default class NtrodeView extends Component {
             <div>
                 <h3>Ntrode: {data.name}</h3>
                 <NtrodeInfoTable data={data} />
+                <Table>
+                    <TableBody>
+                        <TableRow key="view_sorting_results">
+                            <TableCell>
+                                <Link2 onClick={() => {this.props.onViewSortingResults && this.props.onViewSortingResults(data.epoch_name, data.name)}}>View sorting results</Link2>
+                            </TableCell>
+                        </TableRow>
+                        <TableRow key="view_sorting_results_curated">
+                            <TableCell>
+                                <Link2 onClick={() => {this.props.onViewSortingResultsCurated && this.props.onViewSortingResultsCurated(data.epoch_name, data.name)}}>View sorting results (curated)</Link2>
+                            </TableCell>
+                        </TableRow>
+                    </TableBody>
+                </Table>
                 <Collapsible title="View timeseries" collapsible={true} initExpanded={false} key={data.recording_file}>
                     <TimeseriesView
                         recordingPath={data.recording_file}
@@ -36,20 +50,25 @@ class NtrodeInfoTable extends Component {
     }
     render() {
         const { data } = this.props;
+        data.unit_ids = data.processed_info ? data.processed_info.sorting_results.unit_ids.join(', ') : 'N/A';
+        data.unit_ids_curated = data.processed_info ? data.processed_info.sorting_results_curated.unit_ids.join(', ') : 'N/A';
         const fields = [
             {key: 'name', label: 'Ntrode name'},
             {key: 'num_channels', label: 'Num. channels'},
             {key: 'num_timepoints', label: 'Num. timepoints'},
-            {key: 'samplerate', label: 'Sampling frequency (Hz)'}
+            {key: 'samplerate', label: 'Sampling frequency (Hz)'},
+            {key: 'unit_ids', label: 'Units'},
+            {key: 'unit_ids_curated', label: 'Units (curated)'}
         ];
+        
         return (
             <Table>
                 <TableBody>
                     {
                         fields.map((field) => (
-                            <TableRow>
-                                <TableCell>{field.label}</TableCell>
-                                <TableCell>{data[field.key]}</TableCell>
+                            <TableRow key={field.key}>
+                                <TableCell key="label">{field.label}</TableCell>
+                                <TableCell key="value">{data[field.key]}</TableCell>
                             </TableRow>
                         ))
                     }
@@ -101,4 +120,15 @@ class Collapsible extends Component {
             );
         }
     }
+}
+
+function Link2(props) {
+    return (
+        <Link
+            component="button" variant="body2"
+            onClick={props.onClick}
+        >
+            {props.children}
+        </Link>
+    )
 }

@@ -7,14 +7,13 @@ hj.init_electron()
 
 def main():
     parser = argparse.ArgumentParser(description="View a single animal day (Frank lab)")
-    parser.add_argument('--input', help='The input directory containing the animal day ephys data', )
-    parser.add_argument('--output', help='The output directory where the sorting results have been written', required=False, default=None)
+    parser.add_argument('--raw', help='The raw input directory containing the animal day ephys, stimulus and behavior data', )
+    parser.add_argument('--processed', help='The directory where the output of spike sorting have been written', required=False, default=None)
     parser.add_argument('--port', help='Port for hosting the view', required=False, default=None)
     args = parser.parse_args()
-    if args.output:
-        raise Exception('Output directory not yet supported.')
     props = dict(
-        path=args.input
+        raw_path=args.raw,
+        processed_path=args.processed
     )
     W = hj.AnimalDay(**props)
     if args.port:

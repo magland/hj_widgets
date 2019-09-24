@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
-import Grid from '@material-ui/core/Grid';
 import { PythonInterface } from 'reactopya';
 import BrowserTree, { TreeData } from './BrowserTree/BrowserTree';
-import { Table, TableBody, TableRow, TableCell, TableHead, Link } from '@material-ui/core';
+import EpochView from './EpochView';
 import NtrodeView from './NtrodeView';
+import SortingResultsView from './SortingResultsView';
 import HBox from '../HBox/HBox';
 const config = require('./AnimalDay.json');
 
@@ -11,11 +11,11 @@ export default class AnimalDay extends Component {
     static title = 'View of ephys data for a single animal day'
     static reactopyaConfig = config
     constructor(props) {
-        console.log('--- animalday constructor', props);
         super(props);
         this.state = {
             // javascript state
-            path: null,
+            raw_path: null,
+            processed_path: null,
 
             // python state
             status: '',
@@ -31,7 +31,8 @@ export default class AnimalDay extends Component {
     componentDidMount() {
         this.pythonInterface = new PythonInterface(this, config);
         this.pythonInterface.setState({
-            path: this.props.path
+            raw_path: this.props.raw_path || this.props.path,  // TODO: allow path for backward compatibility (eventually remove)
+            processed_path: this.props.processed_path
         });
         this.pythonInterface.start();
     }
@@ -51,8 +52,19 @@ export default class AnimalDay extends Component {
             selectedNodePath: `epochs.${epochName}.ntrodes.${ntrodeName}`
         });
     }
+    handleViewSortingResults = (epochName, ntrodeName) => {
+        this.setState({
+            selectedNodeData: this.state.object.epochs[epochName].ntrodes[ntrodeName].processed_info.sorting_results,
+            selectedNodePath: `epochs.${epochName}.ntrodes.${ntrodeName}.processed_info.sorting_results`
+        });
+    }
+    handleViewSortingResultsCurated = (epochName, ntrodeName) => {
+        this.setState({
+            selectedNodeData: this.state.object.epochs[epochName].ntrodes[ntrodeName].processed_info.sorting_results_curated,
+            selectedNodePath: `epochs.${epochName}.ntrodes.${ntrodeName}.processed_info.sorting_results_curated`
+        });
+    }
     render() {
-        console.log('--- animalday render', this.state, this.props);
         let content = (
             <HBox width={this.props.width}>
                 <BrowserTree
@@ -68,6 +80,8 @@ export default class AnimalDay extends Component {
                 <ContentView
                     data={this.state.selectedNodeData}
                     onNtrodeClicked={this.handleNtrodeClicked}
+                    onViewSortingResults={this.handleViewSortingResults}
+                    onViewSortingResultsCurated={this.handleViewSortingResultsCurated}
                     reactopyaParent={this}
                 />
             </HBox>
@@ -132,9 +146,20 @@ class ContentView extends Component {
                 <NtrodeView
                     data={data}
                     reactopyaParent={this.props.reactopyaParent}
+                    onViewSortingResults={this.props.onViewSortingResults}
+                    onViewSortingResultsCurated={this.props.onViewSortingResultsCurated}
                     {...props}
                 />
             );
+        }
+        else if (data.type === 'sorting_results') {
+            return (
+                <SortingResultsView
+                    data={data}
+                    reactopyaParent={this.props.reactopyaParent}
+                    {...props}
+                />
+            )
         }
         else {
             return (
@@ -144,42 +169,6 @@ class ContentView extends Component {
                 </div>
             );
         }
-    }
-}
-
-class EpochView extends Component {
-    state = {}
-    handleNtrodeClicked = (epochName, ntrodeName) => {
-        this.props.onNtrodeClicked && this.props.onNtrodeClicked(epochName, ntrodeName)
-    }
-    render() {
-        const { data } = this.props;
-        let epochName = data.name;
-        return (
-            <div>
-                <h3>Epoch: {data.name}</h3>
-                <Table>
-                    <TableHead>
-                        <TableRow>
-                            <TableCell>Ntrodes</TableCell>
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {
-                            Object.entries(data.ntrodes).map(([ntrodeName, ntrode]) => (
-                                <TableRow key={ntrodeName}>
-                                    <TableCell>
-                                        <Link2 onClick={() => this.handleNtrodeClicked(epochName, ntrodeName)}>
-                                            {ntrodeName}
-                                        </Link2>
-                                    </TableCell>
-                                </TableRow>
-                            ))
-                        }
-                    </TableBody>
-                </Table>
-            </div>
-        );
     }
 }
 
@@ -197,15 +186,4 @@ class RespectStatus extends Component {
                 return <div>Unknown status: {this.props.status}</div>
         }
     }
-}
-
-function Link2(props) {
-    return (
-        <Link
-            component="button" variant="body2"
-            onClick={props.onClick}
-        >
-            {props.children}
-        </Link>
-    )
 }
