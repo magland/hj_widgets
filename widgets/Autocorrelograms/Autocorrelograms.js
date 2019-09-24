@@ -44,7 +44,6 @@ export default class Autocorrelograms extends Component {
     _updateParams() {
     }
     render() {
-        console.log('---- autocorrelograms render', this.state);
         const { output } = this.state;
         let autocorrelograms = (output || {}).autocorrelograms || [];
 

@@ -17,8 +17,6 @@ class AnimalDay:
             return
         processed_path = state.get('processed_path', None)
 
-        print('a')
-
         self._set_status('running', 'Loading epochs')
 
         # parse the epoch names from the input directory
@@ -34,8 +32,6 @@ class AnimalDay:
             epochs[name0] = load_epoch(raw_path + '/' + name, name=name0, processed_path=epoch_processed_path)
 
         self._set_status('running', 'Setting state')
-
-        print('b')
 
         self.set_state(dict(
             object=dict(
@@ -53,9 +49,10 @@ class AnimalDay:
 
 
 def load_epoch(path, *, name, processed_path=None):
-    print('load epoch')
+    print('Loading epoch {}'.format(name))
     # read the ntrode names
     ntrode_names = [name for name in sorted(os.listdir(path)) if name.endswith('.mda')]
+    print(ntrode_names)
     # load each of the ntrodes
     ntrodes = dict()
     for name2 in ntrode_names:
@@ -92,6 +89,8 @@ def load_ntrode(path, *, name, epoch_name, processed_path=None):
     num_channels = X.N1()
     num_timepoints = X.N2()
 
+    processed_info = load_ntrode_processed_info(processed_path, epoch_name=epoch_name, ntrode_name=name)
+
     # here's the structure for representing ntrode information
     return dict(
         type='ntrode',
@@ -104,7 +103,7 @@ def load_ntrode(path, *, name, epoch_name, processed_path=None):
         num_channels=num_channels,
         num_timepoints=num_timepoints,
         samplerate=30000,  # fix this
-        processed_info=load_ntrode_processed_info(processed_path, epoch_name=epoch_name, ntrode_name=name)
+        processed_info=processed_info
     )
 
 def load_ntrode_processed_info(processed_path, *, epoch_name, ntrode_name):
@@ -114,12 +113,16 @@ def load_ntrode_processed_info(processed_path, *, epoch_name, ntrode_name):
         return None
     firings_path = processed_path + '/firings.mda'
     firings_curated_path = processed_path + '/firings_curated.mda'
+    sorting_results = load_sorting_results_info(firings_path, epoch_name=epoch_name, ntrode_name=ntrode_name)
+    sorting_results_curated = load_sorting_results_info(firings_curated_path, epoch_name=epoch_name, ntrode_name=ntrode_name, curated=True)
     return dict(
-        sorting_results=load_sorting_results_info(firings_path, epoch_name=epoch_name, ntrode_name=ntrode_name),
-        sorting_results_curated=load_sorting_results_info(firings_curated_path, epoch_name=epoch_name, ntrode_name=ntrode_name, curated=True)
+        sorting_results=sorting_results,
+        sorting_results_curated=sorting_results_curated
     )
 
 def load_sorting_results_info(firings_path, *, epoch_name, ntrode_name, curated=False):
+    if not os.path.exists(firings_path):
+        return None
     sorting = SFMdaSortingExtractor(firings_file=firings_path)
     total_num_events = 0
     for unit_id in sorting.get_unit_ids():

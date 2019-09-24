@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import TimeseriesView from '../TimeseriesView/TimeseriesView';
 import { IconButton, Table, TableBody, TableRow, TableCell, Link } from '@material-ui/core';
 import { FaChevronDown, FaChevronRight } from 'react-icons/fa';
+import { ElectrodeGeometry } from '..';
 
 export default class NtrodeView extends Component {
     state = {}
@@ -31,12 +32,23 @@ export default class NtrodeView extends Component {
                     <TimeseriesView
                         recordingPath={data.recording_file}
                         reactopyaParent={this.props.reactopyaParent}
-                        reactopyaChildId={'timeseries'}
+                        reactopyaChildId="Timeseries"
                         samplerate={data.samplerate}
                         width={this.props.width || 1200}
                         height={500}
                         key={data.recording_file}
                     />
+                </Collapsible>
+                <Collapsible title="View electrode geometry" collapsible={true} initExpanded={false} key={data.geom_file}>
+                    {
+                        data.geom_file ? (
+                            <ElectrodeGeometry
+                                path={data.geom_file}
+                                reactopyaParent={this.props.reactopyaParent}
+                                reactopyaChildId="ElectrodeGeometry"
+                            />
+                        ) : <div>No geom file found.</div>
+                    }
                 </Collapsible>
             </div>
         );
@@ -50,8 +62,8 @@ class NtrodeInfoTable extends Component {
     }
     render() {
         const { data } = this.props;
-        data.unit_ids = data.processed_info ? data.processed_info.sorting_results.unit_ids.join(', ') : 'N/A';
-        data.unit_ids_curated = data.processed_info ? data.processed_info.sorting_results_curated.unit_ids.join(', ') : 'N/A';
+        data.unit_ids = data.processed_info && data.processed_info.sorting_results ? data.processed_info.sorting_results.unit_ids.join(', ') : 'N/A';
+        data.unit_ids_curated = data.processed_info && data.processed_info.sorting_results_curated ? data.processed_info.sorting_results_curated.unit_ids.join(', ') : 'N/A';
         const fields = [
             {key: 'name', label: 'Ntrode name'},
             {key: 'num_channels', label: 'Num. channels'},
