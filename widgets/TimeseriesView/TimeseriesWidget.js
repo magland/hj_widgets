@@ -1,4 +1,4 @@
-import TimeWidget, { PainterPath } from './TimeWidget';
+import TimeWidget, { PainterPath } from '../TimeWidget/TimeWidget';
 
 export default class TimeseriesWidget extends TimeWidget {
     constructor(props) {
@@ -48,10 +48,11 @@ export default class TimeseriesWidget extends TimeWidget {
         this.clearPanels();
         if (!num_channels) return;
         for (let m = 0; m < num_channels; m++) {
-            this.addPanel(
+            let panel = this.addPanel(
                 (painter) => {this.paintChannel(painter, m)},
                 {label: channel_ids[m]}
             );
+            panel.setCoordYRange(-1, 1);
         }
         this.repaint();
     }
@@ -108,6 +109,9 @@ export default class TimeseriesWidget extends TimeWidget {
             }
         }
         painter.drawPath(pp);
+    }
+    render() {
+        return this.renderTimeWidget();
     }
 }
 

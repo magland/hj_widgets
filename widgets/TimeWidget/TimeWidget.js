@@ -63,7 +63,7 @@ export default class TimeWidget extends CanvasWidget {
 
         if (this._currentTime !== null) {
             if ((this._timeRange[0] <= this._currentTime) && (this._currentTime <= this._timeRange[1])) {
-                painter.setPen({width:3, color: 'blue'});
+                painter.setPen({width:2, color: 'blue'});
                 painter.drawLine(this._currentTime, 0, this._currentTime, 1);
             }
         }
@@ -118,10 +118,13 @@ export default class TimeWidget extends CanvasWidget {
     currentTime() {
         return this._currentTime;
     }
+    numTimepoints() {
+        return this.props.num_timepoints || this.state.num_timepoints;
+    }
     setCurrentTime(t) {
         if (t < 0) t = 0;
-        if (t >= this.props.num_timepoints)
-            t = this.props.num_timepoints - 1;
+        if (t >= this.numTimepoints())
+            t = this.numTimepoints() - 1;
         if (this._currentTime === t)
             return;
         this._currentTime = t;
@@ -129,8 +132,8 @@ export default class TimeWidget extends CanvasWidget {
     }
     setTimeRange(trange) {
         let tr = clone(trange);
-        if (tr[1] >= this.props.num_timepoints) {
-            let delta = this.props.num_timepoints -1 - tr[1];
+        if (tr[1] >= this.numTimepoints()) {
+            let delta = this.numTimepoints() -1 - tr[1];
             tr[0] += delta;
             tr[1] += delta;
         }
@@ -139,8 +142,8 @@ export default class TimeWidget extends CanvasWidget {
             tr[0] += delta;
             tr[1] += delta;
         }
-        if (tr[1] >= this.props.num_timepoints) {
-            tr[1] = this.props.num_timepoints - 1;
+        if (tr[1] >= this.numTimepoints()) {
+            tr[1] = this.numTimepoints() - 1;
         }
         if ((this._timeRange[0] === tr[0]) && (this._timeRange[1] === tr[1]))
             return;
@@ -164,6 +167,7 @@ export default class TimeWidget extends CanvasWidget {
         let panel = new TimeWidgetPanel(onPaint, opts);
         this._panels.push(panel);
         this.updateLayout();
+        return panel;
     }
     updateLayout() {
         let H0 = this.props.height;
@@ -171,8 +175,6 @@ export default class TimeWidget extends CanvasWidget {
         let y0 = 0;
         for (let panel of this._panels) {
             panel.setYRange(y0, y0+panelHeight);
-            panel.setCoordYRange(-1, 1);
-
             y0 += panelHeight;
         }
         this.setSize(this.props.width, this.props.height);
@@ -239,7 +241,7 @@ export default class TimeWidget extends CanvasWidget {
         this.translateTime(-this._currentTime);
     }
     handle_end = (X) => {
-        this.translateTime(this.props.num_timepoints-this._currentTime);
+        this.translateTime(this.numTimepoints()-this._currentTime);
     }
     onZoomAmplitude(handler) {
         this._zoomAmplitudeHandlers.push(handler);
@@ -269,7 +271,7 @@ export default class TimeWidget extends CanvasWidget {
         this.setTimeRange([t1, t2]);
     }
 
-    render() {
+    renderTimeWidget() {
         return this.renderCanvasWidget();
     }
 }

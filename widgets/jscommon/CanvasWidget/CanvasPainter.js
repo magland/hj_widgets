@@ -101,7 +101,6 @@ export function CanvasPainter(context2d, canvasLayer) {
         return _drawText(rect2, alignment, txt);
     }
     function _drawText(rect, alignment, txt) {
-        console.log('------------ drawText', rect, alignment, txt);
         var x, y, textAlign, textBaseline;
         if (alignment.AlignLeft) {
             x = rect[0];
@@ -140,7 +139,6 @@ export function CanvasPainter(context2d, canvasLayer) {
         ctx.textBaseline = textBaseline;
         apply_pen(ctx, m_pen);
         ctx.fillStyle = to_color(m_brush.color);
-        console.log('---- fillText', txt, x, y, ctx.fillStyle, ctx.textAlign, ctx.textBaseline);
         ctx.fillText(txt, x, y);
     }
     this.drawMarker = function(x, y, radius, shape, opts) {

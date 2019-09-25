@@ -239,7 +239,7 @@ export default class TimeseriesWidget extends CanvasWidget {
         let M = this.props.timeseriesModel.numChannels();
         let pt1 = this.val2pix(M - 1, this.currentTime, -this.y_offsets[M - 1]);
         let pt2 = this.val2pix(0, this.currentTime, -this.y_offsets[0]);
-        painter.setPen({width:4, color: 'blue'});
+        painter.setPen({width:2, color: 'blue'});
         painter.drawLine(pt1[0], pt1[1] - this.channel_spacing / 2, pt2[0], pt2[1] + this.channel_spacing / 2);
         this.add_markers(painter)
     }

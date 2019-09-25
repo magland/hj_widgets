@@ -26,7 +26,7 @@ export default class NtrodeView extends Component {
                         </TableRow>
                     </TableBody>
                 </Table>
-                <Collapsible title="View timeseries" collapsible={true} initExpanded={false} key={data.recording_file}>
+                <Collapsible title="Timeseries" collapsible={true} initExpanded={false} key={data.recording_file}>
                     <TimeseriesView
                         recordingPath={data.recording_file}
                         reactopyaParent={this.props.reactopyaParent}
@@ -37,7 +37,7 @@ export default class NtrodeView extends Component {
                         key={data.recording_file}
                     />
                 </Collapsible>
-                <Collapsible title="View electrode geometry" collapsible={true} initExpanded={false} key={data.geom_file}>
+                <Collapsible title="Electrode geometry" collapsible={true} initExpanded={false} key={data.geom_file}>
                     {
                         data.geom_file ? (
                             <ElectrodeGeometry

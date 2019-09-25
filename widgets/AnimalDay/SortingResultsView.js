@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import Autocorrelograms from '../Autocorrelograms/Autocorrelograms';
 import { IconButton, Table, TableBody, TableRow, TableCell } from '@material-ui/core';
 import { FaChevronDown, FaChevronRight } from 'react-icons/fa';
+import SpikeRasterPlot from '../SpikeRasterPlot/SpikeRasterPlot';
 
 export default class SortingResultsView extends Component {
     state = {}
@@ -11,9 +12,17 @@ export default class SortingResultsView extends Component {
             <div>
                 <h3>Sorting results</h3>
                 <SortingResultsInfoTable data={data} />
-                <Collapsible title="View autocorrelograms" collapsible={true} initExpanded={false} key={data.firings_path}>
+                <Collapsible title="Autocorrelograms" collapsible={true} initExpanded={false} key={'Autocorrelograms-' + data.firings_path}>
                     <Autocorrelograms
                         firingsPath={data.firings_path}
+                        samplerate={30000} // fix this
+                        reactopyaParent={this.props.reactopyaParent}
+                        reactopyaChildId={'Autocorrelograms'}
+                    />
+                </Collapsible>
+                <Collapsible title="Spike raster plot" collapsible={true} initExpanded={false} key={'RasterPlot-' + data.firings_path}>
+                    <SpikeRasterPlot
+                        firings_path={data.firings_path}
                         samplerate={30000} // fix this
                         reactopyaParent={this.props.reactopyaParent}
                         reactopyaChildId={'Autocorrelograms'}

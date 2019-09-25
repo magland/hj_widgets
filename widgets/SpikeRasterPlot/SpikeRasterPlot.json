@@ -1,0 +1,6 @@
+{
+    "project_name": "hj_widgets",
+    "type": "SpikeRasterPlot",
+    "description": "Spike raster plot",
+    "defaultProps": {}
+}
