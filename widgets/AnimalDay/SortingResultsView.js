@@ -46,7 +46,7 @@ class SortingResultsInfoTable extends Component {
                 <TableBody>
                     {
                         fields.map((field) => (
-                            <TableRow key={field.name}>
+                            <TableRow key={field.key}>
                                 <TableCell key="label">{field.label}</TableCell>
                                 <TableCell key="value">{field.format(data[field.key])}</TableCell>
                             </TableRow>

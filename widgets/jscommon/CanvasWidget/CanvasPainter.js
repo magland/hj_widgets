@@ -1,4 +1,4 @@
-export function CanvasPainter(context2d, canvasWidget) {
+export function CanvasPainter(context2d, canvasLayer) {
     var that = this;
     var ctx = context2d;
 
@@ -101,6 +101,7 @@ export function CanvasPainter(context2d, canvasWidget) {
         return _drawText(rect2, alignment, txt);
     }
     function _drawText(rect, alignment, txt) {
+        console.log('------------ drawText', rect, alignment, txt);
         var x, y, textAlign, textBaseline;
         if (alignment.AlignLeft) {
             x = rect[0];
@@ -113,6 +114,9 @@ export function CanvasPainter(context2d, canvasWidget) {
         else if (alignment.AlignRight) {
             x = rect[0] + rect[2];
             textAlign = 'right';
+        }
+        else {
+            console.error('Missing horizontal alignment in drawText');
         }
 
         if (alignment.AlignTop) {
@@ -127,12 +131,16 @@ export function CanvasPainter(context2d, canvasWidget) {
             y = rect[1] + rect[3] / 2;
             textBaseline = 'middle';
         }
+        else {
+            console.error('Missing vertical alignment in drawText');
+        }
 
         ctx.font = m_font['pixel-size'] + 'px ' + m_font.family;
         ctx.textAlign = textAlign;
         ctx.textBaseline = textBaseline;
         apply_pen(ctx, m_pen);
         ctx.fillStyle = to_color(m_brush.color);
+        console.log('---- fillText', txt, x, y, ctx.fillStyle, ctx.textAlign, ctx.textBaseline);
         ctx.fillText(txt, x, y);
     }
     this.drawMarker = function(x, y, radius, shape, opts) {
@@ -224,15 +232,15 @@ export function CanvasPainter(context2d, canvasWidget) {
         return [Math.min(pt1[0], pt2[0]), Math.min(pt1[1], pt2[1]), Math.abs(pt2[0] - pt1[0]), Math.abs(pt2[1] - pt1[1])];
     }
     function transformXY(x, y) {
+        const margins = canvasLayer.margins();
         if (m_use_coords) {
-            const xr = canvasWidget.coordXRange();
-            const yr = canvasWidget.coordYRange();
-            const margins = canvasWidget.margins();
-            let W = canvasWidget.width() - margins[0] - margins[1];
-            let H = canvasWidget.height() - margins[2] - margins[3];
+            const xr = canvasLayer.coordXRange();
+            const yr = canvasLayer.coordYRange();
+            let W = canvasLayer.width() - margins[0] - margins[1];
+            let H = canvasLayer.height() - margins[2] - margins[3];
             const xextent = xr[1] - xr[0];
             const yextent = yr[1] - yr[0];
-            if (canvasWidget.preserveAspectRatio()) {
+            if (canvasLayer.preserveAspectRatio()) {
                 if ((W * yextent > H * xextent) && (yextent)) {
                     W = H * xextent / yextent;
                 }
@@ -245,7 +253,7 @@ export function CanvasPainter(context2d, canvasWidget) {
             return [margins[0] + W * xpct, margins[2] + H * ypct];
         }
         else {
-            return [x, y];
+            return [margins[0] + x, margins[2] + y];
         }
     }
 }
@@ -329,10 +337,10 @@ export function MouseHandler() {
     let m_drag_rect = null;
 
     function report(name, X) {
-        drag_functionality(name, X);
         for (let i in m_handlers[name]) {
             m_handlers[name][i](X);
         }
+        drag_functionality(name, X);
     }
 
     function drag_functionality(name, X) {
@@ -353,11 +361,14 @@ export function MouseHandler() {
                 m_drag_pos = clone(X.pos);
             }
             else {
-                m_dragging = true;
                 if (!m_drag_anchor) {
                     m_drag_anchor = clone(X.pos);
                 }
-                m_drag_pos = clone(X.pos);
+                const tol = 4;
+                if ((Math.abs(X.pos[0] - m_drag_anchor[0]) > tol) || (Math.abs(X.pos[1] - m_drag_anchor[1]) > tol)) {
+                    m_dragging = true;
+                    m_drag_pos = clone(X.pos);
+                }
             }
             if (m_dragging) {
                 m_drag_rect = [Math.min(m_drag_anchor[0], m_drag_pos[0]), Math.min(m_drag_anchor[1], m_drag_pos[1]), Math.abs(m_drag_pos[0] - m_drag_anchor[0]), Math.abs(m_drag_pos[1] - m_drag_anchor[1])];

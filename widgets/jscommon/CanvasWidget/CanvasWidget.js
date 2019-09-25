@@ -2,10 +2,14 @@ import React, { Component } from "react";
 import { CanvasPainter, MouseHandler } from "./CanvasPainter";
 
 class CanvasWidgetLayer {
-    constructor(onPaint) {
+    constructor(onPaint, canvasWidget) {
         this._onPaint = onPaint;
         this._ref = React.createRef();
         this._repaintHandlers = [];
+        this._canvasWidget = canvasWidget;
+        this._margins = null;
+        this._coordXRange = null;
+        this._coordYRange = null;
     }
     ref() {
         return this._ref;
@@ -24,6 +28,45 @@ class CanvasWidgetLayer {
         for (let handler of this._repaintHandlers) {
             handler();
         }
+    }
+    width() {
+        return this._canvasWidget.width();
+    }
+    height() {
+        return this._canvasWidget.height();
+    }
+    setMargins(l, r, t, b) {
+        this._margins = [l, r, t, b];
+    }
+    margins() {
+        return this._margins ? clone(this._margins) : this._canvasWidget.margins();
+    }
+    coordXRange() {
+        return this._coordXRange ? clone(this._coordXRange) : this._canvasWidget.coordXRange();
+    }
+    coordYRange() {
+        return this._coordYRange ? clone(this._coordYRange) : this._canvasWidget.coordYRange();
+    }
+    setCoordXRange(min, max) {
+        this._coordXRange = [min, max];
+    }
+    setCoordYRange(min, max) {
+        this._coordYRange = [min, max];
+    }
+    preserveAspectRatio() {
+        return this._canvasWidget.preserveAspectRatio();
+    }
+    pixToCoords(pix) {
+        let margins = this.margins();
+        let coordXRange = this.coordXRange();
+        let coordYRange = this.coordYRange();
+        let width = this.width();
+        let height = this.height();
+        let xpct = (pix[0] - margins[0]) / (width - margins[0] - margins[1]);
+        let x = coordXRange[0] + xpct * (coordXRange[1] - coordXRange[0]);
+        let ypct = (pix[1] - margins[2]) / (height - margins[2] - margins[3]);
+        let y = coordYRange[0] + ypct * (coordYRange[1] - coordYRange[0]);
+        return [x, y];
     }
     _onRepaintCalled(handler) {
         this._repaintHandlers.push(handler);
@@ -60,12 +103,12 @@ export default class CanvasWidget extends Component {
         this.stopAnimation();
     }
     addCanvasLayer(onPaint) {
-        let L = new CanvasWidgetLayer(onPaint, this.width(), this.height());
+        let L = new CanvasWidgetLayer(onPaint, this);
         L._onRepaintCalled(() => {
             let ctx = L.context();
             if (!ctx) return;
             this._mouseHandler.setElement(L.canvasElement());
-            let painter = new CanvasPainter(ctx, this);
+            let painter = new CanvasPainter(ctx, L);
             painter._initialize(this.width(), this.height());
             L._callOnPaint(painter);
         });
@@ -126,7 +169,7 @@ export default class CanvasWidget extends Component {
         return this._preserveAspectRatio;
     }
     margins() {
-        return JSON.parse(JSON.stringify(this._margins));
+        return clone(this._margins);
     }
     mouseHandler() {
         return this._mouseHandler;
@@ -135,7 +178,6 @@ export default class CanvasWidget extends Component {
         this._keyPressHandlers.push(handler);
     }
     _handleKeyPress = (evt) => {
-        console.log('--- _handleKeyPress', evt);
         for (let handler of this._keyPressHandlers) {
             handler(evt);
         }
@@ -203,4 +245,8 @@ export default class CanvasWidget extends Component {
             </div>
         );
     }
+}
+
+function clone(obj) {
+    return JSON.parse(JSON.stringify(obj));
 }

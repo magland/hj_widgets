@@ -4,7 +4,7 @@ export default class TimeseriesWidget extends TimeWidget {
     constructor(props) {
         super(props);
         this.state = {}
-        this.downsampleFactor = 1;
+        this._downsampleFactor = 1;
         this.channel_colors = mv_default_channel_colors(); // colors of the channel traces
         this.y_scale_factor = 1;
     }
@@ -38,17 +38,20 @@ export default class TimeseriesWidget extends TimeWidget {
     updateDownsampleFactor() {
         let trange = this.timeRange();
         let downsample_factor = determine_downsample_factor_from_num_timepoints(this.props.width * 1.3, trange[1] - trange[0]);
-        if (downsample_factor !== this.downsampleFactor) {
-            this.downsampleFactor = downsample_factor;
+        if (downsample_factor !== this._downsampleFactor) {
+            this._downsampleFactor = downsample_factor;
             this.repaint();
         }
     }
     updatePanels() {
-        const { num_channels } = this.props;
+        const { num_channels, channel_ids } = this.props;
         this.clearPanels();
         if (!num_channels) return;
         for (let m = 0; m < num_channels; m++) {
-            this.addPanel((painter) => {this.paintChannel(painter, m)});
+            this.addPanel(
+                (painter) => {this.paintChannel(painter, m)},
+                {label: channel_ids[m]}
+            );
         }
         this.repaint();
     }
@@ -64,7 +67,7 @@ export default class TimeseriesWidget extends TimeWidget {
         let t2 = Math.floor(trange[1] + 1);
         if (t1 < 0) t1 = 0;
         if (t2 >= this.props.num_timepoints) t2 = this.props.num_timepoints;
-        let downsample_factor = this.downsampleFactor;
+        let downsample_factor = this._downsampleFactor;
         let t1b = Math.floor(t1 / downsample_factor);
         let t2b = Math.floor(t2 / downsample_factor);
         painter.setPen({ 'color': this.channel_colors[m % this.channel_colors.length] });

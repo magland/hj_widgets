@@ -15,9 +15,7 @@ class TimeseriesView:
         self._multiscale_recordings = None
 
     def javascript_state_changed(self, prev_state, state):
-        print('test 0')
         if not self._recording:
-            print('test 1')
             recording_path = state.get('recording_path', None)
             if not recording_path:
                 return
@@ -30,23 +28,21 @@ class TimeseriesView:
                 timeseries_path=mt.computeFileSha1(recording_path),
                 samplerate=samplerate
             )))
-            print('test 2')
             traces0 = X.get_traces(channel_ids=X.get_channel_ids(), start_frame=0, end_frame=min(X.get_num_frames(), 5000))
             y_offsets = -np.mean(traces0, axis=1)
             for m in range(traces0.shape[0]):
                 traces0[m, :] = traces0[m, :] + y_offsets[m]
             vv = np.percentile(np.abs(traces0), 90)
             y_scale_factor = 1 / (2 * vv) if vv > 0 else 1
-            print('test 3', y_offsets, y_scale_factor)
             self.set_state(dict(
                 num_channels=X.get_num_channels(),
                 num_timepoints=X.get_num_frames(),
+                channel_ids=X.get_channel_ids(),
                 y_offsets=y_offsets,
                 y_scale_factor=y_scale_factor,
                 samplerate=samplerate,
                 status_message='Loaded recording.'
             ))
-            print('test 4')
             self._recording = X
         else:
             X = self._recording

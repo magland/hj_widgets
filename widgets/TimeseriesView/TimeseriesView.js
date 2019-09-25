@@ -32,6 +32,7 @@ class TimeseriesViewInner extends Component {
             // python state
             num_channels: null,
             num_timepoints: null,
+            channel_ids: null,
             samplerate: null,
             y_offsets: null,
             y_scale_factor: null,
@@ -115,12 +116,13 @@ class TimeseriesViewInner extends Component {
                     <TimeseriesWidget
                         timeseriesModel={this.timeseriesModel}
                         num_channels={this.state.num_channels}
+                        num_timepoints={this.state.num_timepoints}
+                        channel_ids={this.state.channel_ids}
                         y_offsets={this.state.y_offsets}
                         y_scale_factor={this.state.y_scale_factor}
                         width={this.props.width}
                         height={this.props.height || 500}
                     />
-                    <div>{this.state.status_message}</div>
                 </div>
             )
         }
