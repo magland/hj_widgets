@@ -23,7 +23,7 @@ class NodeCreator {
     createObjectNode(obj, name, basepath, part_of_list) {
         const max_array_children = 20;
         let childNodes = [];
-        let path0 = this.joinPaths(basepath, name, '.', part_of_list);
+        let path0 = this.joinPaths(basepath, name, '/', part_of_list);
         let type0 = 'object';
         if (Array.isArray(obj)) {
             childNodes = this.createArrayHierarchyChildNodes(obj, max_array_children, 0, obj.length, path0);
@@ -87,7 +87,7 @@ class NodeCreator {
     }
 
     createValueNode(val, name, basepath) {
-        let path0 = this.joinPaths(basepath, name, '.');
+        let path0 = this.joinPaths(basepath, name, '/');
         return {
             type: 'value',
             name: name,

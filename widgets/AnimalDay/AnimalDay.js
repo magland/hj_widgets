@@ -36,6 +36,11 @@ export default class AnimalDay extends Component {
         });
         this.pythonInterface.start();
     }
+    componentDidUpdate() {
+        if ((this.state.object) && (this.props.init_selected_node_path) && (!this.state.selectedNodePath)) {
+            this.selectNodeFromPath(this.props.init_selected_node_path);
+        }
+    }
     componentWillUnmount() {
         this.pythonInterface.stop();
     }
@@ -47,22 +52,31 @@ export default class AnimalDay extends Component {
         }
     }
     handleNtrodeClicked = (epochName, ntrodeName) => {
-        this.setState({
-            selectedNodeData: this.state.object.epochs[epochName].ntrodes[ntrodeName],
-            selectedNodePath: `epochs.${epochName}.ntrodes.${ntrodeName}`
-        });
+        this.selectNodeFromPath(`epochs/${epochName}/ntrodes/${ntrodeName}`);
+    }
+    selectNodeFromPath = (path) => {
+        let list = path.split('/');
+        let ptr = this.state.object;
+        for (let val of list) {
+            if (ptr) {
+                ptr = ptr[val];
+            }
+        }
+        if (ptr) {
+            this.setState({
+                selectedNodeData: ptr,
+                selectedNodePath: path
+            });
+        }
+        else {
+            console.warn('Unable to select node from path: ' + path);
+        }
     }
     handleViewSortingResults = (epochName, ntrodeName) => {
-        this.setState({
-            selectedNodeData: this.state.object.epochs[epochName].ntrodes[ntrodeName].processed_info.sorting_results,
-            selectedNodePath: `epochs.${epochName}.ntrodes.${ntrodeName}.processed_info.sorting_results`
-        });
+        this.selectNodeFromPath(`epochs/${epochName}/ntrodes/${ntrodeName}/processed_info/sorting_results`);
     }
     handleViewSortingResultsCurated = (epochName, ntrodeName) => {
-        this.setState({
-            selectedNodeData: this.state.object.epochs[epochName].ntrodes[ntrodeName].processed_info.sorting_results_curated,
-            selectedNodePath: `epochs.${epochName}.ntrodes.${ntrodeName}.processed_info.sorting_results_curated`
-        });
+        this.selectNodeFromPath(`epochs/${epochName}/ntrodes/${ntrodeName}/processed_info/sorting_results_curated`);
     }
     render() {
         let content = (

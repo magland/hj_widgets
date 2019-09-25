@@ -6,7 +6,8 @@
             "key": "AnimalDay",
             "props": {
                 "raw_path": "/home/magland/data/franklab_test_data/20190512_subset_for_testing",
-                "processed_path": "/home/magland/data/franklab_test_data/20190512_subset_sorted"
+                "processed_path": "/home/magland/data/franklab_test_data/20190512_subset_sorted",
+                "init_selected_node_path": "epochs/20190512_rosa_01_s1/ntrodes/20190512_rosa_01_s1.nt1"
             }
         }
     ]

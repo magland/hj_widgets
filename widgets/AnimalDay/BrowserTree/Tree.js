@@ -70,9 +70,9 @@ export default class Tree extends Component {
 
     getAllAncestorPaths(path) {
         let ret = [];
-        let a = path.split('.');
+        let a = path.split('/');
         for (let i = 0; i < a.length - 1; i++) {
-            ret.push(a.slice(0, i + 1).join('.'));
+            ret.push(a.slice(0, i + 1).join('/'));
         }
         return ret;
     }

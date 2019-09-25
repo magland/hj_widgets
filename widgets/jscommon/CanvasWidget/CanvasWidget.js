@@ -39,11 +39,11 @@ export default class CanvasWidget extends Component {
         this.state = {
             canvasWidgetWidth: 100,
             canvasWidgetHeight: 100,
-            coordXRange: [0, 1],
-            coordYRange: [0, 1],
-            preserveAspectRatio: false,
-            margins: [0, 0, 0, 0]
         };
+        this._coordXRange = [0, 1];
+        this._coordYRange = [0, 1];
+        this._preserveAspectRatio = false;
+        this._margins = [0, 0, 0, 0];
         this._canvasLayers = [];
         this._mouseHandler = new MouseHandler();
 
@@ -53,6 +53,8 @@ export default class CanvasWidget extends Component {
         this._animationFPS = null;
         this._animationStartTime = null;
         this._animationTimeoutScheduled = false;
+
+        this._keyPressHandlers = [];
     }
     componentWillUnmount() {
         this.stopAnimation();
@@ -85,50 +87,58 @@ export default class CanvasWidget extends Component {
         return this.state.canvasWidgetHeight;
     }
     setCoordXRange(xmin, xmax) {
-        if ((xmin === this.state.coordXRange[0]) && (xmax === this.state.coordXRange[1])) {
+        if ((xmin === this._coordXRange[0]) && (xmax === this._coordXRange[1])) {
             return;
         }
-        this.setState({
-            coordXRange: [xmin, xmax]
-        });
+        this._coordXRange = [xmin, xmax];
     }
     setCoordYRange(ymin, ymax) {
-        if ((ymin === this.state.coordYRange[0]) && (ymax === this.state.coordYRange[1])) {
+        if ((ymin === this._coordYRange[0]) && (ymax === this._coordYRange[1])) {
             return;
         }
-        this.setState({
-            coordYRange: [ymin, ymax]
-        });
+        this._coordYRange = [ymin, ymax];
+    }
+    pixToCoords(pix) {
+        let xpct = (pix[0] - this._margins[0]) / (this.state.canvasWidgetWidth - this._margins[0] - this._margins[1]);
+        let x = this._coordXRange[0] + xpct * (this._coordXRange[1] - this._coordXRange[0]);
+        let ypct = (pix[1] - this._margins[2]) / (this.state.canvasWidgetHeight - this._margins[2] - this._margins[3]);
+        let y = this._coordYRange[0] + ypct * (this._coordYRange[1] - this._coordYRange[0]);
+        return [x, y];
     }
     setPreserveAspectRatio(val) {
-        if (this.state.preserveAspectRatio === val)
+        if (this._preserveAspectRatio === val)
             return;
-        this.setState({
-            preserveAspectRatio: val
-        });
+        this._preserveAspectRatio = val;
     }
     setMargins(l, r, t, b) {
         const lrtb = [l, r, t, b];
-        if (JSON.stringify(lrtb) === JSON.stringify(this.state.margins))
+        if (JSON.stringify(lrtb) === JSON.stringify(this._margins))
             return
-        this.setState({
-            margins: lrtb
-        });
+        this._margins = lrtb;
     }
     coordXRange() {
-        return [this.state.coordXRange[0], this.state.coordXRange[1]];
+        return [this._coordXRange[0], this._coordXRange[1]];
     }
     coordYRange() {
-        return [this.state.coordYRange[0], this.state.coordYRange[1]];
+        return [this._coordYRange[0], this._coordYRange[1]];
     }
     preserveAspectRatio() {
-        return this.state.preserveAspectRatio;
+        return this._preserveAspectRatio;
     }
     margins() {
-        return JSON.parse(JSON.stringify(this.state.margins));
+        return JSON.parse(JSON.stringify(this._margins));
     }
     mouseHandler() {
         return this._mouseHandler;
+    }
+    onKeyPress(handler) {
+        this._keyPressHandlers.push(handler);
+    }
+    _handleKeyPress = (evt) => {
+        console.log('--- _handleKeyPress', evt);
+        for (let handler of this._keyPressHandlers) {
+            handler(evt);
+        }
     }
     startAnimation(onAnimationFrame, fps) {
         if (this._animationRunning) {
@@ -171,7 +181,11 @@ export default class CanvasWidget extends Component {
         setTimeout(this.repaint, 100);
 
         return (
-            <div style={{position: 'relative', width: this.width(), height: this.height(), left: 0, top: 0}}>
+            <div
+                style={{position: 'relative', width: this.width(), height: this.height(), left: 0, top: 0}}
+                onKeyDown={this._handleKeyPress}
+                tabIndex={0} // tabindex needed to handle keypress
+            >
                 {
                     this._canvasLayers.map((L, index) => (
                         <canvas

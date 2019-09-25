@@ -8,8 +8,6 @@ export default class NtrodeView extends Component {
     state = {}
     render() {
         const { data } = this.props;
-        console.log('ntrode render', this.props);
-        console.log('ntrode data', data);
         return (
             <div>
                 <h3>Ntrode: {data.name}</h3>

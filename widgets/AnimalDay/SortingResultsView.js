@@ -7,7 +7,6 @@ export default class SortingResultsView extends Component {
     state = {}
     render() {
         const { data } = this.props;
-        console.log('sorting results data', data);
         return (
             <div>
                 <h3>Sorting results</h3>

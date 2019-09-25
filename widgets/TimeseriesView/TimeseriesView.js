@@ -24,15 +24,17 @@ class TimeseriesViewInner extends Component {
         super(props)
         this.state = {
             // javascript state
-            recordingPath: null,
+            recording_path: null,
             download_from: null,
             segmentSize: null,
             segmentsRequested: null,
 
             // python state
-            numChannels: null,
-            numTimepoints: null,
+            num_channels: null,
+            num_timepoints: null,
             samplerate: null,
+            y_offsets: null,
+            y_scale_factor: null,
             status_message: '',
 
             // other
@@ -45,7 +47,7 @@ class TimeseriesViewInner extends Component {
     componentDidMount() {
         this.pythonInterface = new PythonInterface(this, config);
         this.pythonInterface.setState({
-            recordingPath: this.props.recordingPath,
+            recording_path: this.props.recordingPath,
             download_from: this.props.download_from,
             segmentSize: 100000
         });
@@ -60,15 +62,15 @@ class TimeseriesViewInner extends Component {
     }
 
     updateData() {
-        if (!this.state.numChannels) return;
+        if (!this.state.num_channels) return;
         if (!this.timeseriesModel) {
             if (!this.state.samplerate) {
                 return;
             }
             const params = {
                 samplerate: this.state.samplerate,
-                num_channels: this.state.numChannels,
-                num_timepoints: this.state.numTimepoints,
+                num_channels: this.state.num_channels,
+                num_timepoints: this.state.num_timepoints,
                 segment_size: this.state.segmentSize
             };
             this.timeseriesModel = new TimeseriesModel(params);
@@ -112,6 +114,9 @@ class TimeseriesViewInner extends Component {
                 <div>
                     <TimeseriesWidget
                         timeseriesModel={this.timeseriesModel}
+                        num_channels={this.state.num_channels}
+                        y_offsets={this.state.y_offsets}
+                        y_scale_factor={this.state.y_scale_factor}
                         width={this.props.width}
                         height={this.props.height || 500}
                     />
