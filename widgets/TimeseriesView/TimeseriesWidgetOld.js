@@ -84,7 +84,6 @@ export default class TimeseriesWidget extends CanvasWidget {
             this.channel_y_positions.push(y0);
             y0 -= this.channel_spacing;
         }
-        this.setSize(this.props.width, this.props.height);
         this.setCoordYRange(this.channel_y_positions[M-1] - this.channel_spacing, this.channel_y_positions[0] + this.channel_spacing);
     }
 

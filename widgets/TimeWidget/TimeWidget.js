@@ -6,7 +6,7 @@ export default class TimeWidget extends CanvasWidget {
         super(props);
 
         this._panels = [];
-        this._timeRange = [0, 10000];
+        this._timeRange = [0, 80000];
         this._timeRangeChangedHandlers = [];
         this._currentTime = null;
         this._anchorTimeRange = null;
@@ -112,7 +112,7 @@ export default class TimeWidget extends CanvasWidget {
             
             let rect = [0.2, 0.2, 0.6, 0.6];
             let alignment = {AlignRight: true, AlignVCenter: true};
-            painter.drawText(rect, alignment, panel._opts.label);
+            panel._opts.label && painter.drawText(rect, alignment, panel._opts.label);
         }
     }
     currentTime() {
@@ -177,7 +177,6 @@ export default class TimeWidget extends CanvasWidget {
             panel.setYRange(y0, y0+panelHeight);
             y0 += panelHeight;
         }
-        this.setSize(this.props.width, this.props.height);
     }
     pixToTime(pix) {
         let coords = this._mainLayer.pixToCoords(pix);

@@ -89,7 +89,7 @@ def load_ntrode(path, *, name, epoch_name, processed_path=None):
     num_channels = X.N1()
     num_timepoints = X.N2()
 
-    processed_info = load_ntrode_processed_info(processed_path, epoch_name=epoch_name, ntrode_name=name)
+    processed_info = load_ntrode_processed_info(processed_path, recording_path=path, epoch_name=epoch_name, ntrode_name=name)
 
     # here's the structure for representing ntrode information
     return dict(
@@ -106,21 +106,21 @@ def load_ntrode(path, *, name, epoch_name, processed_path=None):
         processed_info=processed_info
     )
 
-def load_ntrode_processed_info(processed_path, *, epoch_name, ntrode_name):
+def load_ntrode_processed_info(processed_path, *, recording_path, epoch_name, ntrode_name):
     if not processed_path:
         return None
     if not os.path.exists(processed_path):
         return None
     firings_path = processed_path + '/firings.mda'
     firings_curated_path = processed_path + '/firings_curated.mda'
-    sorting_results = load_sorting_results_info(firings_path, epoch_name=epoch_name, ntrode_name=ntrode_name)
-    sorting_results_curated = load_sorting_results_info(firings_curated_path, epoch_name=epoch_name, ntrode_name=ntrode_name, curated=True)
+    sorting_results = load_sorting_results_info(firings_path,recording_path=recording_path, epoch_name=epoch_name, ntrode_name=ntrode_name)
+    sorting_results_curated = load_sorting_results_info(firings_curated_path, recording_path=recording_path, epoch_name=epoch_name, ntrode_name=ntrode_name, curated=True)
     return dict(
         sorting_results=sorting_results,
         sorting_results_curated=sorting_results_curated
     )
 
-def load_sorting_results_info(firings_path, *, epoch_name, ntrode_name, curated=False):
+def load_sorting_results_info(firings_path, *, recording_path, epoch_name, ntrode_name, curated=False):
     if not os.path.exists(firings_path):
         return None
     sorting = SFMdaSortingExtractor(firings_file=firings_path)
@@ -134,6 +134,7 @@ def load_sorting_results_info(firings_path, *, epoch_name, ntrode_name, curated=
         ntrode_name=ntrode_name,
         curated=curated,
         firings_path=firings_path,
+        recording_path=recording_path,
         unit_ids=sorting.get_unit_ids(),
         num_events=total_num_events
     )

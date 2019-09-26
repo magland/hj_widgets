@@ -57,7 +57,6 @@ class MdaRecordingExtractor(RecordingExtractor):
         return self._num_timepoints
 
     def get_sampling_frequency(self):
-        print('get_sampling_frequency', self._samplerate)
         return self._samplerate
 
     def get_traces(self, channel_ids=None, start_frame=None, end_frame=None):
@@ -103,7 +102,7 @@ class MdaRecordingExtractor(RecordingExtractor):
 
 
 class MdaSortingExtractor(SortingExtractor):
-    def __init__(self, firings_file):
+    def __init__(self, firings_file, samplerate):
         SortingExtractor.__init__(self)
         if is_kbucket_url(firings_file):
             download_needed = is_url(mt.findFile(path=firings_file))
@@ -119,6 +118,7 @@ class MdaSortingExtractor(SortingExtractor):
             raise Exception('Unable to realize firings file: ' + firings_file)
 
         self._firings = readmda(self._firings_path)
+        self._sampling_frequency = samplerate
         self._times = self._firings[1, :]
         self._labels = self._firings[2, :]
         self._unit_ids = np.unique(self._labels).astype(int)
@@ -133,6 +133,9 @@ class MdaSortingExtractor(SortingExtractor):
             end_frame = np.Inf
         inds = np.where((self._labels == unit_id) & (start_frame <= self._times) & (self._times < end_frame))
         return np.rint(self._times[inds]).astype(int)
+
+    def get_sampling_frequency(self):
+        return self._sampling_frequency
 
     def hash(self):
         from mountaintools import client as mt

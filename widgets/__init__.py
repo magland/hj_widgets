@@ -5,3 +5,4 @@ from .Autocorrelograms import Autocorrelograms
 from .ElectrodeGeometry import ElectrodeGeometry
 from .HBox import HBox
 from .SpikeRasterPlot import SpikeRasterPlot
+from .SpikeAmplitudePlot import SpikeAmplitudePlot

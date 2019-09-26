@@ -1,6 +1,11 @@
-from mountaintools import client as mt
-from spikeforest import SFMdaSortingExtractor
+import traceback
 import numpy as np
+from mountaintools import client as mt
+from mountaintools import MountainClient
+import spikeextractors as se
+from ..pycommon.autoextractors import AutoSortingExtractor
+
+    
 
 class SpikeRasterPlot:
     def __init__(self):
@@ -8,29 +13,28 @@ class SpikeRasterPlot:
 
     def javascript_state_changed(self, prev_state, state):
         self._set_status('running', 'Running SpikeRasterPlot')
-        firings_path = state.get('firings_path', None)
-        if not firings_path:
-            self._set_error('Missing: firings_path')
-            return
-        download_from = state.get('download_from', [])
 
-        self._set_status('running', 'Realizing file')
-        mt.configDownloadFrom(download_from)
-        firings_path2 = mt.realizeFile(firings_path)
-        if not firings_path2:
-            self._set_error('Unable to realize file: {}'.format(firings_path))
-        
-        sorting = SFMdaSortingExtractor(firings_file=firings_path2)
+        sorting0 = state.get('sorting', None)
+        if not sorting0:
+            self._set_error('Missing: sorting')
+            return
+        try:
+            self._sorting = AutoSortingExtractor(**sorting0)
+        except Exception as err:
+            traceback.print_exc()
+            self._set_error('Problem initiating sorting: {}'.format(err))
+            return
+
         spike_trains = dict()
-        for unit_id in sorting.get_unit_ids():
-            spike_trains[int(unit_id)] = sorting.get_unit_spike_train(unit_id=unit_id)
+        for unit_id in self._sorting.get_unit_ids():
+            spike_trains[int(unit_id)] = self._sorting.get_unit_spike_train(unit_id=unit_id)
         num_timepoints = np.max([
             np.max(spike_trains[unit_id])
-            for unit_id in sorting.get_unit_ids()
+            for unit_id in self._sorting.get_unit_ids()
         ])
         
         self._set_state(
-            unit_ids=sorting.get_unit_ids(),
+            unit_ids=self._sorting.get_unit_ids(),
             spike_trains=spike_trains,
             num_timepoints=num_timepoints,
             status='finished',

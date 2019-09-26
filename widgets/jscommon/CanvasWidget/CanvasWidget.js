@@ -79,10 +79,6 @@ class CanvasWidgetLayer {
 export default class CanvasWidget extends Component {
     constructor(props) {
         super(props);
-        this.state = {
-            canvasWidgetWidth: 100,
-            canvasWidgetHeight: 100,
-        };
         this._coordXRange = [0, 1];
         this._coordYRange = [0, 1];
         this._preserveAspectRatio = false;
@@ -98,6 +94,12 @@ export default class CanvasWidget extends Component {
         this._animationTimeoutScheduled = false;
 
         this._keyPressHandlers = [];
+    }
+    componentDidMount() {
+        this.setState({
+            overrideWidth: null,
+            overrideHeight: null
+        });
     }
     componentWillUnmount() {
         this.stopAnimation();
@@ -115,19 +117,17 @@ export default class CanvasWidget extends Component {
         this._canvasLayers.push(L);
         return L;
     }
-    setSize(width, height) {
-        if ((width != this.width()) || (height != this.height())) {
-            this.setState({
-                canvasWidgetWidth: width,
-                canvasWidgetHeight: height
-            });
-        }
-    }
     width() {
-        return this.state.canvasWidgetWidth;
+        return this.state.overrideWidth || this.props.width;
     }
     height() {
-        return this.state.canvasWidgetHeight;
+        return this.state.overrideHeight || this.props.height;
+    }
+    setCanvasSize(W, H) {
+        this.setState({
+            overrideWidth: W,
+            overrideHeight: H
+        });
     }
     setCoordXRange(xmin, xmax) {
         if ((xmin === this._coordXRange[0]) && (xmax === this._coordXRange[1])) {
@@ -142,9 +142,9 @@ export default class CanvasWidget extends Component {
         this._coordYRange = [ymin, ymax];
     }
     pixToCoords(pix) {
-        let xpct = (pix[0] - this._margins[0]) / (this.state.canvasWidgetWidth - this._margins[0] - this._margins[1]);
+        let xpct = (pix[0] - this._margins[0]) / (this.width() - this._margins[0] - this._margins[1]);
         let x = this._coordXRange[0] + xpct * (this._coordXRange[1] - this._coordXRange[0]);
-        let ypct = (pix[1] - this._margins[2]) / (this.state.canvasWidgetHeight - this._margins[2] - this._margins[3]);
+        let ypct = (pix[1] - this._margins[2]) / (this.height() - this._margins[2] - this._margins[3]);
         let y = this._coordYRange[0] + ypct * (this._coordYRange[1] - this._coordYRange[0]);
         return [x, y];
     }

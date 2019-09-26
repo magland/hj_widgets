@@ -24,9 +24,7 @@ class TimeseriesViewInner extends Component {
         super(props)
         this.state = {
             // javascript state
-            recording_path: null,
-            download_from: null,
-            segmentSize: null,
+            recording: null,
             segmentsRequested: null,
 
             // python state
@@ -36,6 +34,7 @@ class TimeseriesViewInner extends Component {
             samplerate: null,
             y_offsets: null,
             y_scale_factor: null,
+            segment_size: null,
             status_message: '',
 
             // other
@@ -48,10 +47,9 @@ class TimeseriesViewInner extends Component {
     componentDidMount() {
         this.pythonInterface = new PythonInterface(this, config);
         this.pythonInterface.setState({
-            recording_path: this.props.recordingPath,
-            download_from: this.props.download_from,
-            segmentSize: 100000
+            recording: this.props.recording
         });
+
         this.pythonInterface.start();
         this.updateData();
     }
@@ -72,7 +70,7 @@ class TimeseriesViewInner extends Component {
                 samplerate: this.state.samplerate,
                 num_channels: this.state.num_channels,
                 num_timepoints: this.state.num_timepoints,
-                segment_size: this.state.segmentSize
+                segment_size: this.state.segment_size
             };
             this.timeseriesModel = new TimeseriesModel(params);
             this.timeseriesModel.onRequestDataSegment((ds_factor, segment_num) => {

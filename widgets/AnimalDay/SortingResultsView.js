@@ -3,6 +3,7 @@ import Autocorrelograms from '../Autocorrelograms/Autocorrelograms';
 import { IconButton, Table, TableBody, TableRow, TableCell } from '@material-ui/core';
 import { FaChevronDown, FaChevronRight } from 'react-icons/fa';
 import SpikeRasterPlot from '../SpikeRasterPlot/SpikeRasterPlot';
+import SpikeAmplitudePlot from '../SpikeAmplitudePlot/SpikeAmplitudePlot';
 
 export default class SortingResultsView extends Component {
     state = {}
@@ -14,18 +15,36 @@ export default class SortingResultsView extends Component {
                 <SortingResultsInfoTable data={data} />
                 <Collapsible title="Autocorrelograms" collapsible={true} initExpanded={false} key={'Autocorrelograms-' + data.firings_path}>
                     <Autocorrelograms
-                        firingsPath={data.firings_path}
-                        samplerate={30000} // fix this
+                        sorting={{
+                            path: data.firings_path,
+                            samplerate: 30000 // fix this
+                        }}
                         reactopyaParent={this.props.reactopyaParent}
                         reactopyaChildId={'Autocorrelograms'}
                     />
                 </Collapsible>
-                <Collapsible title="Spike raster plot" collapsible={true} initExpanded={false} key={'RasterPlot-' + data.firings_path}>
+                <Collapsible title="Spike raster plot" collapsible={true} initExpanded={false} key={'SpikeRasterPlot-' + data.firings_path}>
                     <SpikeRasterPlot
-                        firings_path={data.firings_path}
-                        samplerate={30000} // fix this
+                        sorting={{
+                            path: data.firings_path,
+                            samplerate: 30000 // fix this
+                        }}
                         reactopyaParent={this.props.reactopyaParent}
-                        reactopyaChildId={'Autocorrelograms'}
+                        reactopyaChildId={'SpikeRasterPlot'}
+                    />
+                </Collapsible>
+                <Collapsible title="Spike amplitudes" collapsible={true} initExpanded={false} key={'SpikeAmplitudePlot-' + data.firings_path}>
+                    <SpikeAmplitudePlot
+                        sorting={{
+                            path: data.firings_path,
+                            samplerate: 30000 // fix this
+                        }}
+                        recording={{
+                            path: data.recording_path,
+                            samplerate: 30000 // fix this
+                        }}
+                        reactopyaParent={this.props.reactopyaParent}
+                        reactopyaChildId={'SpikeAmplitudePlot'}
                     />
                 </Collapsible>
             </div>

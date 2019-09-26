@@ -11,11 +11,18 @@
             }
         },
         {
-            "type": "TimeseriesView",
-            "title": "Timeseries view",
+            "type": "Autocorrelograms",
+            "title": "Autocorrelograms",
+            "key": "Autocorrelograms",
             "props": {
-                "recordingPath": "sha1dir://2db55b618779899e8b35fd15ef4831a98b3e2733.synth_magland.datasets_noise10_K10_C4.001_synth_20sec/raw.mda",
-                "download_from": "spikeforest.public"
+                "sorting": {
+                    "path": "sha1dir://ed0fe4de4ef2c54b7c9de420c87f9df200721b24.synth_visapy/mea_c30/set1/firings_true.mda",
+                    "samplerate": 30000,
+                    "download_from": "spikeforest.public"
+                },
+                "max_samples": 10000,
+                "max_dt_msec": 150,
+                "bin_size_msec": 2
             }
         },
         {
@@ -23,9 +30,42 @@
             "title": "SpikeRasterPlot",
             "key": "SpikeRasterPlot",
             "props": {
-                "firings_path": "sha1dir://3ea5c9bd992de2d27402b2e83259c679d76e9319.synth_mearec_tetrode/datasets_noise10_K10_C4/001_synth/firings_true.mda",
-                "download_from": "spikeforest.public"
+                "sorting": {
+                    "path": "sha1dir://3ea5c9bd992de2d27402b2e83259c679d76e9319.synth_mearec_tetrode/datasets_noise10_K10_C4/001_synth/firings_true.mda",
+                    "samplerate": 30000,
+                    "download_from": "spikeforest.public"
+                }
+            }
+        },
+        {
+            "type": "TimeseriesView",
+            "title": "Timeseries view",
+            "props": {
+                "recording": {
+                    "path": "sha1dir://2db55b618779899e8b35fd15ef4831a98b3e2733.synth_magland.datasets_noise10_K10_C4.001_synth_20sec/raw.mda",
+                    "samplerate": 30000,
+                    "download_from": "spikeforest.public"
+                }
+            }
+        },
+        {
+            "type": "SpikeAmplitudePlot",
+            "title": "SpikeAmplitudePlot",
+            "key": "SpikeAmplitudePlot",
+            "props": {
+                "sorting": {
+                    "path": "sha1dir://3ea5c9bd992de2d27402b2e83259c679d76e9319.synth_mearec_tetrode/datasets_noise10_K10_C4/001_synth/firings_true.mda",
+                    "samplerate": 30000,
+                    "download_from": "spikeforest.public"
+                },
+                "recording": {
+                    "path": "sha1dir://3ea5c9bd992de2d27402b2e83259c679d76e9319.synth_mearec_tetrode/datasets_noise10_K10_C4/001_synth/raw.mda",
+                    "samplerate": 30000,
+                    "download_from": "spikeforest.public"
+                }
             }
         }
+    ],
+    "widgets2": [
     ]
 }

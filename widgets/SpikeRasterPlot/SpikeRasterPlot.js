@@ -22,8 +22,7 @@ class SpikeRasterPlotInner extends TimeWidget {
         super(props);
         this.state = {
             // javascript state
-            firings_path: null,
-            download_from: null,
+            sorting: null,
             
             // python state
             unit_ids: null,
@@ -37,8 +36,7 @@ class SpikeRasterPlotInner extends TimeWidget {
         this.pythonInterface = new PythonInterface(this, config);
         this.pythonInterface.start();
         this.pythonInterface.setState({
-            firings_path: this.props.firings_path,
-            download_from: this.props.download_from
+            sorting: this.props.sorting,
         });
         this.initializeTimeWidget();
         this.updatePanels();

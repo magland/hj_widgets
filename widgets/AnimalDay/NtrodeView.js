@@ -28,10 +28,12 @@ export default class NtrodeView extends Component {
                 </Table>
                 <Collapsible title="Timeseries" collapsible={true} initExpanded={false} key={data.recording_file}>
                     <TimeseriesView
-                        recordingPath={data.recording_file}
+                        recording={{
+                            path: data.recording_file,
+                            samplerate: data.samplerate
+                        }}
                         reactopyaParent={this.props.reactopyaParent}
                         reactopyaChildId="Timeseries"
-                        samplerate={data.samplerate}
                         width={this.props.width || 1200}
                         height={500}
                         key={data.recording_file}

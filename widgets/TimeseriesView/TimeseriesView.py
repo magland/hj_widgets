@@ -1,11 +1,13 @@
 from mountaintools import client as mt
+from mountaintools import MountainClient
+import traceback
 import spikeextractors as se
 import numpy as np
 import io
 import base64
 from spikeforest import mdaio
 from spikeforest import EfficientAccessRecordingExtractor
-from .mdaextractors import MdaRecordingExtractor, MdaSortingExtractor
+from ..pycommon.autoextractors import AutoRecordingExtractor
 
 
 class TimeseriesView:
@@ -13,40 +15,40 @@ class TimeseriesView:
         super().__init__()
         self._recording = None
         self._multiscale_recordings = None
+        self._segment_size = 100000
 
     def javascript_state_changed(self, prev_state, state):
         if not self._recording:
-            recording_path = state.get('recording_path', None)
-            if not recording_path:
+            self._set_status('running', 'Running TimeseriesView')
+            recording0 = state.get('recording', None)
+            if not recording0:
+                self._set_error('Missing: recording')
                 return
-            self.set_state(dict(status_message='Loading recording'))
-            mt.configDownloadFrom(state.get('download_from', []))
-            samplerate = 30000  # todo: fix
-            X = MdaRecordingExtractor(
-                timeseries_path=recording_path, download=True, samplerate=samplerate)
-            setattr(X, 'hash', mt.sha1OfObject(dict(
-                timeseries_path=mt.computeFileSha1(recording_path),
-                samplerate=samplerate
-            )))
-            traces0 = X.get_traces(channel_ids=X.get_channel_ids(), start_frame=0, end_frame=min(X.get_num_frames(), 5000))
+            try:
+                self._recording = AutoRecordingExtractor(**recording0)
+            except Exception as err:
+                traceback.print_exc()
+                self._set_error('Problem initiating recording: {}'.format(err))
+                return
+
+            self._set_status('running', 'Loading recording')
+            traces0 = self._recording.get_traces(channel_ids=self._recording.get_channel_ids(), start_frame=0, end_frame=min(self._recording.get_num_frames(), 25000))
             y_offsets = -np.mean(traces0, axis=1)
             for m in range(traces0.shape[0]):
                 traces0[m, :] = traces0[m, :] + y_offsets[m]
             vv = np.percentile(np.abs(traces0), 90)
             y_scale_factor = 1 / (2 * vv) if vv > 0 else 1
             self.set_state(dict(
-                num_channels=X.get_num_channels(),
-                num_timepoints=X.get_num_frames(),
-                channel_ids=X.get_channel_ids(),
+                num_channels=self._recording.get_num_channels(),
+                num_timepoints=self._recording.get_num_frames(),
+                channel_ids=self._recording.get_channel_ids(),
                 y_offsets=y_offsets,
                 y_scale_factor=y_scale_factor,
-                samplerate=samplerate,
+                samplerate=self._recording.get_sampling_frequency(),
+                segment_size=self._segment_size,
                 status_message='Loaded recording.'
             ))
-            self._recording = X
-        else:
-            X = self._recording
-        
+    
         SR = state.get('segmentsRequested', {})
         for key in SR.keys():
             aa = SR[key]
@@ -66,15 +68,24 @@ class TimeseriesView:
                 self._multiscale_recordings = _create_multiscale_recordings(recording=self._recording, progressive_ds_factor=3)
                 self.set_state(dict(status_message='Done creating multiscale recording'))
             rx = self._multiscale_recordings[ds]
-            X = _extract_data_segment(recording=rx, segment_num=ss, segment_size=self.get_javascript_state('segmentSize') * 2)
+            X = _extract_data_segment(recording=rx, segment_num=ss, segment_size=self._segment_size * 2)
             return X
 
         traces = self._recording.get_traces(
-            start_frame=ss*self.get_javascript_state('segmentSize'), end_frame=(ss+1)*self.get_javascript_state('segmentSize'))
+            start_frame=ss*self.get_javascript_state('segment_size'), end_frame=(ss+1)*self.get_javascript_state('segment_size'))
         return traces
 
     def iterate(self):
         pass
+
+    def _set_state(self, **kwargs):
+        self.set_state(kwargs)
+    
+    def _set_error(self, error_message):
+        self._set_status('error', error_message)
+    
+    def _set_status(self, status, status_message=''):
+        self._set_state(status=status, status_message=status_message)
 
 
 def _mda32_to_base64(X):

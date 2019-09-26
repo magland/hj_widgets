@@ -1,0 +1,6 @@
+{
+    "project_name": "hj_widgets",
+    "type": "SpikeAmplitudePlot",
+    "description": "Spike amplitude plot",
+    "defaultProps": {}
+}
