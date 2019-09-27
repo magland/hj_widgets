@@ -91,7 +91,6 @@ class AnimalDayInner extends Component {
         this.selectNodeFromPath(`epochs/${epochName}/ntrodes/${ntrodeName}/processed_info/sorting_results_curated`);
     }
     render() {
-        console.log('------', this.state.object, this.props);
         let content = (
             <ADContainer width={this.props.width} height={500}>
                 <BrowserTree
@@ -150,34 +149,22 @@ class ADContainer extends Component {
         this.state={
             gripPosition: null
         };
-        this.actualGripPosition = null;
-    }
-    componentDidMount() {
-    }
-    componentDidUpdate() {
-    }
-    componentWillUnmount() {
     }
     _handleGripDrag = (evt, ui) => {
-        console.log('--- drag', evt, ui);
     }
     _handleGripDragStop = (evt, ui) => {
-        console.log('--- stop', evt, ui);
         const newGripPosition = ui.x;
         this.setState({
             gripPosition: newGripPosition
         });
     }
     render() {
-        console.log('-abcc', this.props);
         const { width, height } = this.props;
         let { gripPosition } = this.state;
 
         if (gripPosition === null) {
             gripPosition = 300;
         }
-        console.log('--- grip position is', gripPosition);
-        this.actualGripPosition = gripPosition;
         const gripWidth = 12;
         const width1 = gripPosition;
         const width2 = width - width1 - gripWidth;
