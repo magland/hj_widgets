@@ -6,6 +6,7 @@ import NtrodeView from './NtrodeView';
 import SortingResultsView from './SortingResultsView';
 import config from './AnimalDay.json';
 import './AnimalDay.css';
+import Draggable from 'react-draggable';
 import AutoDetermineWidth from '../jscommon/AutoDetermineWidth';
 
 export default class AnimalDay extends Component {
@@ -146,6 +147,10 @@ class AnimalDayInner extends Component {
 class ADContainer extends Component {
     constructor(props) {
         super(props);
+        this.state={
+            gripPosition: null
+        };
+        this.actualGripPosition = null;
     }
     componentDidMount() {
     }
@@ -156,19 +161,30 @@ class ADContainer extends Component {
     _handleGripDrag = (evt, ui) => {
         console.log('--- drag', evt, ui);
     }
-    _handleGripDragEnd = (evt, ui) => {
-        console.log('--- end', evt, ui);
+    _handleGripDragStop = (evt, ui) => {
+        console.log('--- stop', evt, ui);
+        const newGripPosition = ui.x;
+        this.setState({
+            gripPosition: newGripPosition
+        });
     }
     render() {
         console.log('-abcc', this.props);
         const { width, height } = this.props;
+        let { gripPosition } = this.state;
 
-        const gripWidth = 5;
+        if (gripPosition === null) {
+            gripPosition = 300;
+        }
+        console.log('--- grip position is', gripPosition);
+        this.actualGripPosition = gripPosition;
+        const gripWidth = 12;
+        const width1 = gripPosition;
+        const width2 = width - width1 - gripWidth;
+
         let child1 = this.props.children[0];
         let child2 = this.props.children[1];
-        let width1 = 300;
-        let width2 = width - width1 - gripWidth;
-
+        
         let style0 = {
             position: 'relative',
             left: 0,
@@ -192,9 +208,18 @@ class ADContainer extends Component {
         };
         let styleGrip = {
             position: 'absolute',
-            left: width1,
             top: 0,
             width: gripWidth,
+            height: height,
+            background: 'rgb(230, 230, 230)',
+            cursor: 'col-resize',
+            zIndex: 100
+        };
+        let styleGripInner = {
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: 4,
             height: height,
             background: 'gray',
             cursor: 'col-resize'
@@ -204,13 +229,17 @@ class ADContainer extends Component {
                 <div style={style1} className="ADContainerChild">
                     <child1.type {...child1.props} width={width1} height={height} />
                 </div>
-                <div
-                    style={styleGrip}
-                    draggable="true"
+                <Draggable
+                    position={{x: gripPosition, y: 0}}
                     axis="x"
-                    onDragOver={evt => {evt.preventDefault()}}
-                    onDragEnd={this._handleGripDragEnd}
-                />
+                    onDrag={this._handleGripDrag}
+                    onStop={this._handleGripDragStop}
+                >
+                    <div style={styleGrip}>
+                        <div style={styleGripInner} />
+                    </div>
+                </Draggable>
+                
                 <div style={style2} className="ADContainerChild">
                     <child2.type {...child2.props} width={width2} height={height} />
                 </div>
