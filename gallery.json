@@ -9,6 +9,19 @@
                 "processed_path": "/home/magland/data/franklab_test_data/20190512_subset_sorted",
                 "init_selected_node_path": "epochs/20190512_rosa_01_s1/ntrodes/20190512_rosa_01_s1.nt3/processed_info/sorting_results"
             }
+        }
+    ],
+    "widgets2": [
+        {
+            "type": "TimeseriesView",
+            "title": "Timeseries view",
+            "props": {
+                "recording": {
+                    "path": "sha1dir://2db55b618779899e8b35fd15ef4831a98b3e2733.synth_magland.datasets_noise10_K10_C4.001_synth_20sec/raw.mda",
+                    "samplerate": 30000,
+                    "download_from": "spikeforest.public"
+                }
+            }
         },
         {
             "type": "Autocorrelograms",
@@ -38,17 +51,6 @@
             }
         },
         {
-            "type": "TimeseriesView",
-            "title": "Timeseries view",
-            "props": {
-                "recording": {
-                    "path": "sha1dir://2db55b618779899e8b35fd15ef4831a98b3e2733.synth_magland.datasets_noise10_K10_C4.001_synth_20sec/raw.mda",
-                    "samplerate": 30000,
-                    "download_from": "spikeforest.public"
-                }
-            }
-        },
-        {
             "type": "SpikeAmplitudePlot",
             "title": "SpikeAmplitudePlot",
             "key": "SpikeAmplitudePlot",
@@ -65,7 +67,5 @@
                 }
             }
         }
-    ],
-    "widgets2": [
     ]
 }

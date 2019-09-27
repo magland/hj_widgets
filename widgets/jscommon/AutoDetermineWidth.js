@@ -32,7 +32,6 @@ export default class AutoDetermineWidth extends Component {
     updateDimensions() {
         if (!this.container) return;
         if (this.state.width !== this.container.offsetWidth) {
-            console.log('setting state width', this.container.offsetWidth);
             this.setState({
                 width: this.container.offsetWidth // see render()
             });

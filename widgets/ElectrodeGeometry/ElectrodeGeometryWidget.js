@@ -40,7 +40,7 @@ class ElectrodeGeometryWidgetInner extends CanvasWidget {
 
     componentDidMount() {
         this.computeSize();
-        this.repaint();
+        this.initializeCanvasWidget();
     }
 
     componentWillUnmount() {

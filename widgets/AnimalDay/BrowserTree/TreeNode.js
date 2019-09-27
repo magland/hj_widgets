@@ -89,7 +89,7 @@ const TreeNode = (props) => {
         </NodeIcon>
         
 
-        <span key={'label'} role="button" style={{cursor: 'pointer'}}>
+        <span key={'label'} role="button" style={{cursor: 'pointer', whiteSpace: 'nowrap'}}>
           { getNodeLabel(node) }
         </span>
       </StyledTreeNode>

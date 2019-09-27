@@ -15,6 +15,7 @@ export class LightPlot extends CanvasWidget {
 
     componentDidMount() {
         this.updateSize();
+        this.initializeCanvasWidget();
     }
 
     componentWillUnmount() {

@@ -1,0 +1,6 @@
+{
+    "project_name": "hj_widgets",
+    "type": "SelectUnits",
+    "description": "Select unit ids",
+    "defaultProps": {}
+}

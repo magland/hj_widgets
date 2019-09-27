@@ -9,8 +9,6 @@ export default class TimeseriesWidget extends TimeWidget {
         this.y_scale_factor = 1;
     }
     componentDidMount() {
-        this.initializeTimeWidget();
-        this.updatePanels();
 
         this.y_scale_factor = this.props.y_scale_factor;
 
@@ -31,6 +29,9 @@ export default class TimeseriesWidget extends TimeWidget {
             this.repaint();
         })
         this.updateDownsampleFactor();
+
+        this.updatePanels();
+        this.initializeTimeWidget();
     }
     componentDidUpdate() {
         this.updatePanels();

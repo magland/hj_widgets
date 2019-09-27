@@ -6,3 +6,4 @@ export { default as ElectrodeGeometry } from './ElectrodeGeometry/ElectrodeGeome
 export { default as HBox } from './HBox/HBox';
 export { default as SpikeRasterPlot } from './SpikeRasterPlot/SpikeRasterPlot';
 export { default as SpikeAmplitudePlot } from './SpikeAmplitudePlot/SpikeAmplitudePlot';
+export { default as SelectUnits } from './SelectUnits/SelectUnits';

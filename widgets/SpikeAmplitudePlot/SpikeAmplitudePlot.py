@@ -9,35 +9,44 @@ from ..pycommon.autoextractors import AutoSortingExtractor, AutoRecordingExtract
 class SpikeAmplitudePlot:
     def __init__(self):
         super().__init__()
+        self._sorting = None
+        self._recording = None
 
     def javascript_state_changed(self, prev_state, state):
-        self._set_status('running', 'Loading sorting')
-        sorting0 = state.get('sorting', None)
-        if not sorting0:
-            self._set_error('Missing: sorting')
-            return
-        try:
-            self._sorting = AutoSortingExtractor(**sorting0)
-        except:
-            traceback.print_exc()
-            self._set_error('Problem initiating sorting: {}'.format(err))
+        unit_ids = state.get('unit_ids', None)
+        if unit_ids is None:
+            self._set_error('Missing: unit_ids')
             return
 
-        self._set_status('running', 'Loading recording')
-        recording0 = state.get('recording', None)
-        if not recording0:
-            self._set_error('Missing: recording')
-            return
-        try:
-            self._recording = AutoRecordingExtractor(**recording0)
-        except:
-            traceback.print_exc()
-            self._set_error('Problem initiating recording: {}'.format(err))
-            return
+        if not self._sorting:
+            self._set_status('running', 'Loading sorting')
+            sorting0 = state.get('sorting', None)
+            if not sorting0:
+                self._set_error('Missing: sorting')
+                return
+            try:
+                self._sorting = AutoSortingExtractor(**sorting0)
+            except:
+                traceback.print_exc()
+                self._set_error('Problem initiating sorting: {}'.format(err))
+                return
+
+        if not self._recording:
+            self._set_status('running', 'Loading recording')
+            recording0 = state.get('recording', None)
+            if not recording0:
+                self._set_error('Missing: recording')
+                return
+            try:
+                self._recording = AutoRecordingExtractor(**recording0)
+            except:
+                traceback.print_exc()
+                self._set_error('Problem initiating recording: {}'.format(err))
+                return
 
         spike_trains = dict()
         spike_amplitudes = dict()
-        for unit_id in self._sorting.get_unit_ids():
+        for unit_id in unit_ids:
             self._set_status('running', 'Processing unit {}'.format(unit_id))
             times0 = self._sorting.get_unit_spike_train(unit_id=unit_id)
             spike_trains[int(unit_id)] = times0
@@ -46,7 +55,6 @@ class SpikeAmplitudePlot:
         
         self._set_status('running', 'Returning results')
         self._set_state(
-            unit_ids=self._sorting.get_unit_ids(),
             spike_trains=spike_trains,
             spike_amplitudes=spike_amplitudes,
             num_timepoints=num_timepoints,

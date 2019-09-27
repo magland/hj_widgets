@@ -28,6 +28,8 @@ export default class TimeWidget extends CanvasWidget {
 
         this._mainLayer.setMargins(50, 0, 0, 50);
         this._cursorLayer.setMargins(50, 0, 0, 50);
+
+        this.initializeCanvasWidget();
     }
     paintMainLayer = (painter) => {
         painter.clear();

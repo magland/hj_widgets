@@ -1,0 +1,8 @@
+.ADContainerChild {
+    overflow-x: hidden;
+    overflow-y: hidden;
+}
+
+.ADContainerChild:hover {
+    overflow-y: auto;
+}

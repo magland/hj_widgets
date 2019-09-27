@@ -95,11 +95,12 @@ export default class CanvasWidget extends Component {
 
         this._keyPressHandlers = [];
     }
-    componentDidMount() {
+    initializeCanvasWidget() {
         this.setState({
             overrideWidth: null,
             overrideHeight: null
         });
+        this.repaint();
     }
     componentWillUnmount() {
         this.stopAnimation();
@@ -108,7 +109,9 @@ export default class CanvasWidget extends Component {
         let L = new CanvasWidgetLayer(onPaint, this);
         L._onRepaintCalled(() => {
             let ctx = L.context();
-            if (!ctx) return;
+            if (!ctx) {
+                return;
+            }
             this._mouseHandler.setElement(L.canvasElement());
             let painter = new CanvasPainter(ctx, L);
             painter._initialize(this.width(), this.height());
@@ -219,9 +222,10 @@ export default class CanvasWidget extends Component {
         }
     }
     renderCanvasWidget() {
-        // We'll need to think of a better way to do this
-        setTimeout(this.repaint, 100);
-
+        // Need to ind better way to do this:
+        setTimeout(() => {
+            this.repaint();
+        }, 100);
         return (
             <div
                 style={{position: 'relative', width: this.width(), height: this.height(), left: 0, top: 0}}

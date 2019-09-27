@@ -72,7 +72,7 @@ class TimeseriesView:
             return X
 
         traces = self._recording.get_traces(
-            start_frame=ss*self.get_javascript_state('segment_size'), end_frame=(ss+1)*self.get_javascript_state('segment_size'))
+            start_frame=ss*self._segment_size, end_frame=(ss+1)*self._segment_size)
         return traces
 
     def iterate(self):
