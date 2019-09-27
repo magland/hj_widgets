@@ -92,7 +92,7 @@ class AnimalDayInner extends Component {
     }
     render() {
         let content = (
-            <ADContainer width={this.props.width} height={500}>
+            <ADContainer width={this.props.width} height={this.props.height || 500}>
                 <BrowserTree
                     path={null}
                     object={this.state.object}

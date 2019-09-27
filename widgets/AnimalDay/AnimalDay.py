@@ -1,9 +1,9 @@
 import os
+import json
 import traceback
+from mountaintools import client as mt
 from spikeforest import SFMdaSortingExtractor
 from spikeforest import mdaio
-import sys
-
 
 class AnimalDay:
     def __init__(self):
@@ -19,23 +19,19 @@ class AnimalDay:
 
         self._set_status('running', 'Loading epochs')
 
-        # parse the epoch names from the input directory
-        epoch_names = [name for name in sorted(os.listdir(raw_path)) if name.endswith('.mda')]
-        # call load_epoch for each epoch name
-        epochs = dict()
-        for name in epoch_names:
-            name0 = name[0:-4]
-            if processed_path:
-                epoch_processed_path = processed_path + '/' + name0
-            else:
-                epoch_processed_path = None
-            epochs[name0] = load_epoch(raw_path + '/' + name, name=name0, processed_path=epoch_processed_path)
+        if raw_path.endswith('.nwb.json'):
+            nwb_dict = _load_nwb_json(raw_path)
+            epochs = _load_epochs_from_nwb_dict(nwb_dict)
+        else:
+            nwb_dict = None
+            epochs = _load_epochs_from_dir(raw_path, processed_path)
 
         self._set_status('running', 'Setting state')
 
         self.set_state(dict(
             object=dict(
-                epochs=epochs
+                epochs=epochs,
+                raw=nwb_dict
             ),
             status='finished',
             status_message='finished'
@@ -47,6 +43,51 @@ class AnimalDay:
     def _set_status(self, status, status_message=''):
         self.set_state(dict(status=status, status_message=status_message))
 
+def _load_nwb_json(path):
+    path2 = mt.realizeFile(path=path)
+    if not path2:
+        raise Exception('Unable to realize file: {}'.format(path))
+    with open(path2, 'r') as f:
+        obj = json.load(f)
+    return obj
+
+def _load_epochs_from_nwb_dict(obj: dict):
+    epochs = dict()
+    intervals: dict = obj.get('intervals', {})
+    epochs0: dict = intervals.get('epochs', None)
+    if epochs0:
+        LFP = _load_LFP_from_nwb_dict()
+        start_times: list = epochs0['_datasets']['start_time']['_data']
+        stop_times: list = epochs0['_datasets']['stop_time']['_data']
+        print(start_times)
+        print(stop_times)
+        for i in range(len(start_times)):
+            start_time = start_times[i]
+            stop_time = stop_times[i]
+            epoch_name = str(i)
+            ntrodes = dict()
+            epochs[name] = dict(
+                name=epoch_name,
+                ntrodes=ntrodes,
+                path='',
+                processed_path='',
+                type='epoch'
+            )
+    return epochs
+
+def _load_epochs_from_dir(raw_path, processed_path):
+    # parse the epoch names from the input directory
+    epoch_names = [name for name in sorted(os.listdir(raw_path)) if name.endswith('.mda')]
+    # call load_epoch for each epoch name
+    epochs = dict()
+    for name in epoch_names:
+        name0 = name[0:-4]
+        if processed_path:
+            epoch_processed_path = processed_path + '/' + name0
+        else:
+            epoch_processed_path = None
+        epochs[name0] = load_epoch(raw_path + '/' + name, name=name0, processed_path=epoch_processed_path)
+    return epochs
 
 def load_epoch(path, *, name, processed_path=None):
     print('Loading epoch {}'.format(name))
