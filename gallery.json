@@ -5,12 +5,16 @@
             "title": "AnimalDay",
             "key": "AnimalDay",
             "props": {
-                "raw_path": "/home/magland/data/franklab_test_data/20190512_subset_for_testing",
-                "processed_path": "/home/magland/data/franklab_test_data/20190512_subset_sorted",
+                "raw_path": "sha1dir://c516a36ad660ff2eba7e8b24545321351098791c.20190512_subset_for_testing",
+                "raw_path2": "/home/magland/data/franklab_test_data/20190512_subset_for_testing",
+                "processed_path": "sha1dir://2cd43b4f046b8d2d0e68c3f8040f4b79db3e2607.20190512_subset_sorted",
+                "processed_path2": "/home/magland/data/franklab_test_data/20190512_subset_sorted",
                 "init_selected_node_path": "epochs/20190512_rosa_01_s1/ntrodes/20190512_rosa_01_s1.nt3",
                 "init_selected_node_path2": "epochs/20190512_rosa_01_s1/ntrodes/20190512_rosa_01_s1.nt3/processed_info/sorting_results"
             }
-        },
+        }
+    ],
+    "widgets2": [
         {
             "type": "AnimalDay",
             "title": "AnimalDay",
@@ -18,9 +22,7 @@
             "props": {
                 "raw_path": "sha1://ee3264cbd2ad0db9e4ea12db5902bc788cc934c5/bon03.nwb.json"
             }
-        }
-    ],
-    "widgets2": [
+        },
         {
             "type": "TimeseriesView",
             "title": "Timeseries view",

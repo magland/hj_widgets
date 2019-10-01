@@ -77,7 +77,8 @@ def _load_epochs_from_nwb_dict(obj: dict):
 
 def _load_epochs_from_dir(raw_path, processed_path):
     # parse the epoch names from the input directory
-    epoch_names = [name for name in sorted(os.listdir(raw_path)) if name.endswith('.mda')]
+    dir0 = mt.readDir(raw_path)
+    epoch_names = [name for name in sorted(dir0['dirs'].keys()) if name.endswith('.mda')]
     # call load_epoch for each epoch name
     epochs = dict()
     for name in epoch_names:
@@ -92,7 +93,8 @@ def _load_epochs_from_dir(raw_path, processed_path):
 def load_epoch(path, *, name, processed_path=None):
     print('Loading epoch {}'.format(name))
     # read the ntrode names
-    ntrode_names = [name for name in sorted(os.listdir(path)) if name.endswith('.mda')]
+    dir0 = mt.readDir(path)
+    ntrode_names = [name for name in sorted(dir0['files'].keys()) if name.endswith('.mda')]
     print(ntrode_names)
     # load each of the ntrodes
     ntrodes = dict()
@@ -120,13 +122,17 @@ def load_epoch(path, *, name, processed_path=None):
 def load_ntrode(path, *, name, epoch_name, processed_path=None):
     # use the .geom.csv if it exists (we assume path ends with .mda)
     geom_file = path[0:-4] + '.geom.csv'
-    if os.path.exists(geom_file):
+    if mt.findFile(geom_file):
         print('Using geometry file: {}'.format(geom_file))
     else:
         # if doesn't exist, we will create a trivial geom later
         geom_file = None
     
-    X = mdaio.DiskReadMda(path)
+    path2 = mt.realizeFile(path)
+    if not path2:
+        raise Exception('Unable to realize file: ' + path)
+    
+    X = mdaio.DiskReadMda(path2)
     num_channels = X.N1()
     num_timepoints = X.N2()
 
@@ -150,7 +156,7 @@ def load_ntrode(path, *, name, epoch_name, processed_path=None):
 def load_ntrode_processed_info(processed_path, *, recording_path, epoch_name, ntrode_name):
     if not processed_path:
         return None
-    if not os.path.exists(processed_path):
+    if not mt.readDir(processed_path):
         return None
     firings_path = processed_path + '/firings.mda'
     firings_curated_path = processed_path + '/firings_curated.mda'
@@ -162,7 +168,7 @@ def load_ntrode_processed_info(processed_path, *, recording_path, epoch_name, nt
     )
 
 def load_sorting_results_info(firings_path, *, recording_path, epoch_name, ntrode_name, curated=False):
-    if not os.path.exists(firings_path):
+    if not mt.findFile(firings_path):
         return None
     sorting = SFMdaSortingExtractor(firings_file=firings_path)
     total_num_events = 0
