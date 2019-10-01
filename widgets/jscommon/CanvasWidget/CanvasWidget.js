@@ -30,10 +30,10 @@ class CanvasWidgetLayer {
         }
     }
     width() {
-        return this._canvasWidget.width();
+        return this._canvasWidget.canvasWidgetWidth();
     }
     height() {
-        return this._canvasWidget.height();
+        return this._canvasWidget.canvasWidgetHeight();
     }
     setMargins(l, r, t, b) {
         this._margins = [l, r, t, b];
@@ -114,16 +114,16 @@ export default class CanvasWidget extends Component {
             }
             this._mouseHandler.setElement(L.canvasElement());
             let painter = new CanvasPainter(ctx, L);
-            painter._initialize(this.width(), this.height());
+            painter._initialize(this.canvasWidgetWidth(), this.canvasWidgetHeight());
             L._callOnPaint(painter);
         });
         this._canvasLayers.push(L);
         return L;
     }
-    width() {
+    canvasWidgetWidth() {
         return this.state.overrideWidth || this.props.width;
     }
-    height() {
+    canvasWidgetHeight() {
         return this.state.overrideHeight || this.props.height;
     }
     setCanvasSize(W, H) {
@@ -145,9 +145,9 @@ export default class CanvasWidget extends Component {
         this._coordYRange = [ymin, ymax];
     }
     pixToCoords(pix) {
-        let xpct = (pix[0] - this._margins[0]) / (this.width() - this._margins[0] - this._margins[1]);
+        let xpct = (pix[0] - this._margins[0]) / (this.canvasWidgetWidth() - this._margins[0] - this._margins[1]);
         let x = this._coordXRange[0] + xpct * (this._coordXRange[1] - this._coordXRange[0]);
-        let ypct = (pix[1] - this._margins[2]) / (this.height() - this._margins[2] - this._margins[3]);
+        let ypct = (pix[1] - this._margins[2]) / (this.canvasWidgetHeight() - this._margins[2] - this._margins[3]);
         let y = this._coordYRange[0] + ypct * (this._coordYRange[1] - this._coordYRange[0]);
         return [x, y];
     }
@@ -228,7 +228,7 @@ export default class CanvasWidget extends Component {
         }, 100);
         return (
             <div
-                style={{position: 'relative', width: this.width(), height: this.height(), left: 0, top: 0}}
+                style={{position: 'relative', width: this.canvasWidgetWidth(), height: this.canvasWidgetHeight(), left: 0, top: 0}}
                 onKeyDown={this._handleKeyPress}
                 tabIndex={0} // tabindex needed to handle keypress
             >
@@ -238,8 +238,8 @@ export default class CanvasWidget extends Component {
                             key={index}
                             style={{position: 'absolute', left: 0, top: 0}}
                             ref={L.ref()}
-                            width={this.width()}
-                            height={this.height()}
+                            width={this.canvasWidgetWidth()}
+                            height={this.canvasWidgetHeight()}
                             onMouseDown={this._mouseHandler.mouseDown}
                             onMouseUp={this._mouseHandler.mouseUp}
                             onMouseMove={this._mouseHandler.mouseMove}

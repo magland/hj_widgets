@@ -1,5 +1,5 @@
 import React from 'react';
-import { FaFile, FaFolder, FaFolderOpen, FaChevronDown, FaChevronRight, FaBed, FaBullhorn, FaBullseye } from 'react-icons/fa';
+import { FaFile, FaFolder, FaFolderOpen, FaChevronDown, FaChevronRight, FaBullseye, FaCircle, FaList, FaListAlt } from 'react-icons/fa';
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
 import Sha1PathLink from './Sha1PathLink';
@@ -79,13 +79,13 @@ const TreeNode = (props) => {
         
         <NodeIcon key={'item-icon'} marginRight={10}>
           { node.type === 'file' && <FaFile /> }
-          { node.type === 'value' && <FaBed /> }
+          { node.type === 'value' && <FaCircle /> }
           { node.type === 'dir' && isExpanded && <FaFolderOpen /> }
           { node.type === 'dir' && !isExpanded && <FaFolder /> }
-          { node.type === 'object' && isExpanded && <FaBullhorn /> }
-          { node.type === 'object' && !isExpanded && <FaBullhorn /> }
-          { node.type === 'array-parent' && isExpanded && <FaBullhorn /> }
-          { node.type === 'array-parent' && !isExpanded && <FaBullhorn /> }
+          { node.type === 'object' && isExpanded && <FaListAlt /> }
+          { node.type === 'object' && !isExpanded && <FaList /> }
+          { node.type === 'array-parent' && isExpanded && <FaListAlt /> }
+          { node.type === 'array-parent' && !isExpanded && <FaList /> }
         </NodeIcon>
         
 

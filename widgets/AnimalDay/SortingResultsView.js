@@ -15,16 +15,19 @@ export default class SortingResultsView extends Component {
                 <SortingResultsInfoTable data={data} />
                 <Collapsible title="Autocorrelograms" collapsible={true} initExpanded={false} key={'Autocorrelograms-' + data.firings_path}>
                     <Autocorrelograms
+                        width={this.props.width}
                         sorting={{
                             path: data.firings_path,
                             samplerate: 30000 // fix this
                         }}
+                        width={this.props.width}
                         reactopyaParent={this.props.reactopyaParent}
                         reactopyaChildId={'Autocorrelograms'}
                     />
                 </Collapsible>
                 <Collapsible title="Spike raster plot" collapsible={true} initExpanded={false} key={'SpikeRasterPlot-' + data.firings_path}>
                     <SpikeRasterPlot
+                        width={this.props.width}
                         sorting={{
                             path: data.firings_path,
                             samplerate: 30000 // fix this
@@ -35,6 +38,7 @@ export default class SortingResultsView extends Component {
                 </Collapsible>
                 <Collapsible title="Spike amplitudes" collapsible={true} initExpanded={false} key={'SpikeAmplitudePlot-' + data.firings_path}>
                     <SpikeAmplitudePlot
+                        width={this.props.width}
                         sorting={{
                             path: data.firings_path,
                             samplerate: 30000 // fix this

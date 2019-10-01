@@ -101,7 +101,7 @@ class ElectrodeGeometryWidgetInner extends CanvasWidget {
     }
 
     paintDragSelect = (painter) => {
-        painter.clearRect(0, 0, this.width(), this.height());
+        painter.clear();
         if (this.dragSelectRect) {
             painter.fillRect(this.dragSelectRect, 'lightgray');
         }
@@ -126,8 +126,8 @@ class ElectrodeGeometryWidgetInner extends CanvasWidget {
     paintMainLayer = (painter) => {
         let ids = this.ids();
 
-        const W = this.width();
-        const H = this.height();
+        const W = this.canvasWidgetWidth();
+        const H = this.canvasWidgetHeight();
 
         painter.clearRect(0, 0, W, H);
 

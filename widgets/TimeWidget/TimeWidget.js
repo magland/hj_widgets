@@ -1,3 +1,6 @@
+import React, { Component } from 'react';
+import { Toolbar, IconButton } from '@material-ui/core';
+import { FaSearchMinus, FaSearchPlus, FaArrowUp, FaArrowDown, FaArrowLeft, FaArrowRight } from "react-icons/fa";
 import CanvasWidget from '../jscommon/CanvasWidget';
 export { PainterPath } from '../jscommon/CanvasWidget';
 
@@ -10,8 +13,8 @@ export default class TimeWidget extends CanvasWidget {
         this._timeRangeChangedHandlers = [];
         this._currentTime = null;
         this._anchorTimeRange = null;
-        this._zoomAmplitudeHandlers = [];
         this._dragging = false;
+        this._customActions = [];
 
         this.mouseHandler().onMousePress(this.handle_mouse_press);
         this.mouseHandler().onMouseRelease(this.handle_mouse_release);
@@ -30,6 +33,7 @@ export default class TimeWidget extends CanvasWidget {
         this._cursorLayer.setMargins(50, 0, 0, 50);
 
         this.initializeCanvasWidget();
+        this.setCanvasSize(this.props.width, this.props.height - 50);
     }
     paintMainLayer = (painter) => {
         painter.clear();
@@ -71,8 +75,8 @@ export default class TimeWidget extends CanvasWidget {
         }
     }
     paintTimeAxisLayer = (painter) => {
-        let W = this.props.width;
-        let H = this.props.height;
+        let W = this.canvasWidgetWidth();
+        let H = this.canvasWidgetHeight();
         this._timeAxisLayer.setMargins(50, 0, H-50, 0);
         this._timeAxisLayer.setCoordXRange(this._timeRange[0], this._timeRange[1]);
         this._timeAxisLayer.setCoordYRange(0, 1);
@@ -98,8 +102,8 @@ export default class TimeWidget extends CanvasWidget {
         }
     }
     paintPanelLabelLayer = (painter) => {
-        let W = this.props.width;
-        let H = this.props.height;
+        let W = this.canvasWidgetWidth();
+        let H = this.canvasWidgetHeight();
         
         painter.clear();
         painter.useCoords();
@@ -116,6 +120,12 @@ export default class TimeWidget extends CanvasWidget {
             let alignment = {AlignRight: true, AlignVCenter: true};
             panel._opts.label && painter.drawText(rect, alignment, panel._opts.label);
         }
+    }
+    addAction(action, opts) {
+        this._customActions.push({
+            action: action,
+            opts: opts
+        });
     }
     currentTime() {
         return this._currentTime;
@@ -210,10 +220,15 @@ export default class TimeWidget extends CanvasWidget {
         this._dragging = false;
     }
 
-    handle_key_press = (evt) => {
+    handle_key_press = (event) => {
+        for (let a of this._customActions) {
+            if (a.opts.key === event.keyCode) {
+                a.action();
+                event.preventDefault();
+                return false;
+            }
+        }
         switch (event.keyCode) {
-            case 38: this.handle_key_up(event); event.preventDefault(); return false;
-            case 40: this.handle_key_down(event); event.preventDefault(); return false;
             case 37: this.handle_key_left(event); event.preventDefault(); return false;
             case 39: this.handle_key_right(event); event.preventDefault(); return false;
             case 187: this.zoomTime(1.15); event.preventDefault(); return false;
@@ -224,12 +239,6 @@ export default class TimeWidget extends CanvasWidget {
         }
     }
 
-    handle_key_up = (X) => {
-        this.zoomAmplitude(1.15);
-    }
-    handle_key_down = (X) => {
-        this.zoomAmplitude(1 / 1.15);
-    }
     handle_key_left = (X) => {
         let span = this._timeRange[1] - this._timeRange[0];
         this.translateTime(-span * 0.2);
@@ -244,15 +253,7 @@ export default class TimeWidget extends CanvasWidget {
     handle_end = (X) => {
         this.translateTime(this.numTimepoints()-this._currentTime);
     }
-    onZoomAmplitude(handler) {
-        this._zoomAmplitudeHandlers.push(handler);
-    }
-    zoomAmplitude(factor) {
-        for (let handler of this._zoomAmplitudeHandlers) {
-            handler(factor);
-        }
-    }
-    translateTime(delta_t) {
+    translateTime = (delta_t) => {
         let tr = clone(this._timeRange);
         tr[0] += delta_t;
         tr[1] += delta_t;
@@ -260,7 +261,7 @@ export default class TimeWidget extends CanvasWidget {
         this.setCurrentTime(t0);
         this.setTimeRange(tr);
     }
-    zoomTime(factor) {
+    zoomTime = (factor) => {
         let anchor_time = this._currentTime;
         let tr = clone(this._timeRange);
         if ((anchor_time < tr[0]) || (anchor_time > tr[1]))
@@ -273,7 +274,72 @@ export default class TimeWidget extends CanvasWidget {
     }
 
     renderTimeWidget() {
-        return this.renderCanvasWidget();
+        return (
+            <div>
+                <TimeWidgetToolBar
+                    width={this.canvasWidgetWidth()}
+                    height={50}
+                    onZoomIn={() => {this.zoomTime(1.15)}}
+                    onZoomOut={() => {this.zoomTime(1 / 1.15)}}
+                    onShiftTimeLeft={() => {this.handle_key_left()}}
+                    onShiftTimeRight={() => {this.handle_key_right()}}
+                    customActions={this._customActions}
+                />
+                {this.renderCanvasWidget()}
+            </div>
+        );
+    }
+}
+
+class TimeWidgetToolBar extends Component {
+    render() {
+        const style0 = {
+            position: 'relative',
+            width: this.props.width,
+            height: this.props.height
+        };
+        let buttons = [];
+        buttons.push({
+            title: "Time zoom out (-)",
+            onClick: this.props.onZoomOut,
+            icon: <FaSearchMinus />
+        });
+        buttons.push({
+            title: "Time zoom in (+)",
+            onClick: this.props.onZoomIn,
+            icon: <FaSearchPlus />
+        });
+        buttons.push({
+            title: "Shift time left [left arrow]",
+            onClick: this.props.onShiftTimeLeft,
+            icon: <FaArrowLeft />
+        });
+        buttons.push({
+            title: "Shift time right [right arrow]",
+            onClick: this.props.onShiftTimeRight,
+            icon: <FaArrowRight />
+        });
+        for (let a of this.props.customActions) {
+            buttons.push({
+                title: a.opts.title,
+                onClick: a.action,
+                icon: a.opts.icon
+            });
+        }
+        return (
+            <div style={style0}>
+                <Toolbar style={{minHeight: this.props.height}}>
+                    {
+                        buttons.map((button) => (
+                            <IconButton title={button.title} onClick={button.onClick} key={button.title}>
+                                {button.icon}
+                            </IconButton>
+                        ))
+                    }
+                </Toolbar>
+            </div>
+            
+        );
     }
 }
 

@@ -1,4 +1,6 @@
+import React from 'react';
 import TimeWidget, { PainterPath } from '../TimeWidget/TimeWidget';
+import { FaArrowUp, FaArrowDown } from 'react-icons/fa';
 
 export default class TimeseriesWidget extends TimeWidget {
     constructor(props) {
@@ -24,14 +26,12 @@ export default class TimeseriesWidget extends TimeWidget {
         this.onTimeRangeChanged(() => {
             this.updateDownsampleFactor();
         });
-        this.onZoomAmplitude((factor) => {
-            this.y_scale_factor *= factor;
-            this.repaint();
-        })
         this.updateDownsampleFactor();
 
         this.updatePanels();
         this.initializeTimeWidget();
+        this.addAction(() => {this._zoomAmplitude(1.15)}, {title: 'Scale amplitude up [up arrow]', icon: <FaArrowUp />, key: 38});
+        this.addAction(() => {this._zoomAmplitude(1 / 1.15)}, {title: 'Scale amplitude down [down arrow]', icon: <FaArrowDown />, key: 40});
     }
     componentDidUpdate() {
         this.updatePanels();
@@ -110,6 +110,10 @@ export default class TimeseriesWidget extends TimeWidget {
             }
         }
         painter.drawPath(pp);
+    }
+    _zoomAmplitude = (factor) => {
+        this.y_scale_factor *= factor;
+        this.repaint();
     }
     render() {
         return this.renderTimeWidget();

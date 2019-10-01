@@ -5,7 +5,10 @@
             "title": "AnimalDay",
             "key": "AnimalDay",
             "props": {
-                "raw_path": "sha1://ee3264cbd2ad0db9e4ea12db5902bc788cc934c5/bon03.nwb.json"
+                "raw_path": "/home/magland/data/franklab_test_data/20190512_subset_for_testing",
+                "processed_path": "/home/magland/data/franklab_test_data/20190512_subset_sorted",
+                "init_selected_node_path": "epochs/20190512_rosa_01_s1/ntrodes/20190512_rosa_01_s1.nt3",
+                "init_selected_node_path2": "epochs/20190512_rosa_01_s1/ntrodes/20190512_rosa_01_s1.nt3/processed_info/sorting_results"
             }
         },
         {
@@ -13,9 +16,7 @@
             "title": "AnimalDay",
             "key": "AnimalDay",
             "props": {
-                "raw_path": "/home/magland/data/franklab_test_data/20190512_subset_for_testing",
-                "processed_path": "/home/magland/data/franklab_test_data/20190512_subset_sorted",
-                "init_selected_node_path": "epochs/20190512_rosa_01_s1/ntrodes/20190512_rosa_01_s1.nt3/processed_info/sorting_results"
+                "raw_path": "sha1://ee3264cbd2ad0db9e4ea12db5902bc788cc934c5/bon03.nwb.json"
             }
         }
     ],
