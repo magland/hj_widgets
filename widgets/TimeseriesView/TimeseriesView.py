@@ -9,7 +9,6 @@ from spikeforest import mdaio
 from spikeforest import EfficientAccessRecordingExtractor
 from ..pycommon.autoextractors import AutoRecordingExtractor
 
-
 class TimeseriesView:
     def __init__(self):
         super().__init__()
@@ -25,7 +24,7 @@ class TimeseriesView:
                 self._set_error('Missing: recording')
                 return
             try:
-                self._recording = AutoRecordingExtractor(**recording0)
+                self._recording = AutoRecordingExtractor(recording0)
             except Exception as err:
                 traceback.print_exc()
                 self._set_error('Problem initiating recording: {}'.format(err))
@@ -127,17 +126,22 @@ class _DownsampledRecordingExtractor(se.RecordingExtractor):
         self._recording = recording
         self._ds_factor = ds_factor
         self._input_has_minmax = input_has_minmax
+        self._recording_hash = None
         self.copy_channel_properties(recording)
 
     def hash(self):
-        if type(self._recording.hash) == str:
-            recording_hash = self._recording.hash
-        else:
-            recording_hash = self._recording.hash()
+        if not self._recording_hash:
+            if hasattr(self._recording, 'hash'):
+                if type(self._recording.hash) == str:
+                    self._recording_hash = self._recording.hash
+                else:
+                    self._recording_hash = self._recording.hash()
+            else:
+                self._recording_hash = _samplehash(self._recording)
         return mt.sha1OfObject(dict(
             name='downsampled-recording-extractor',
             version=2,
-            recording=recording_hash,
+            recording=self._recording_hash,
             ds_factor=self._ds_factor,
             input_has_minmax=self._input_has_minmax
         ))
@@ -200,3 +204,22 @@ class _DownsampledRecordingExtractor(se.RecordingExtractor):
         EfficientAccessRecordingExtractor(
             recording=recording, _dest_path=save_path)
 
+def _samplehash(recording):
+    from mountaintools import client as mt
+    obj = {
+        'channels': tuple(recording.get_channel_ids()),
+        'frames': recording.get_num_frames(),
+        'data': _samplehash_helper(recording)
+    }
+    return mt.sha1OfObject(obj)
+
+
+def _samplehash_helper(recording):
+    rng = np.random.RandomState(37)
+    n_samples = min(recording.get_num_frames() // 1000, 100)
+    inds = rng.randint(low=0, high=recording.get_num_frames(), size=n_samples)
+    h = 0
+    for i in inds:
+        t = recording.get_traces(start_frame=i, end_frame=i + 100)
+        h = hash((hash(bytes(t)), hash(h)))
+    return h

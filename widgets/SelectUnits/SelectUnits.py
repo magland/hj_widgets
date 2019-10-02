@@ -15,7 +15,7 @@ class SelectUnits:
             self._set_error('Missing: sorting')
             return
         try:
-            self._sorting = AutoSortingExtractor(**sorting0)
+            self._sorting = AutoSortingExtractor(sorting0)
         except Exception as err:
             traceback.print_exc()
             self._set_error('Problem initiating sorting: {}'.format(err))
